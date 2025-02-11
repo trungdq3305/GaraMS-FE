@@ -14,14 +14,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 text-gray-800">
-        <div className="flex flex-col min-h-screen">
-          <Navbar />
-          {/* Main Content */}
-          <main className="flex-grow">{children}</main>
-
-          <Footer />
-        </div>
+      <body className="bg-gray-100 text-gray-900">
+        <Navbar />
+        <main className="container mx-auto p-4">{children}</main>
+        <Footer />
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ export default function Footer() {
     setShowLocation(false);
   };
   return (
-    <div className="flex flex-col mt-12 pt-8 w-full border-solid bg-gray-100 border-t-[5px] border-zinc-300 max-md:max-w-full">
+    <div className="flex flex-col mt-12 pt-8 w-full border-solid bg-gray-800 border-t-[5px] border-zinc-300 max-md:max-w-full">
       <div className="flex flex-col px-16 w-full max-md:px-4 max-md:max-w-full">
         <div className="max-md:mr-1.5 max-md:max-w-full">
           <div className="flex gap-4 max-md:flex-col max-md:gap-0">
@@ -24,8 +24,8 @@ export default function Footer() {
               <div className="max-md:max-w-full">
                 <div className="flex gap-4 max-md:flex-col max-md:gap-0">
                   <div className="flex flex-col w-[30%] max-md:ml-0 max-md:w-full">
-                    <div className="flex flex-col grow text-sm text-neutral-700 ">
-                      <div className="text-sm font-bold text-black">
+                    <div className="flex flex-col grow text-sm text-neutral-100 ">
+                      <div className="text-sm font-bold text-white">
                         Customer Support
                       </div>
                       <Link
@@ -37,19 +37,19 @@ export default function Footer() {
                     </div>
                   </div>
                   <div className="flex flex-col ml-4 w-[35%] max-md:ml-0 max-md:w-full">
-                    <div className="flex flex-col text-sm text-neutral-700 max-md:mt-8">
-                      <div className="text-sm font-bold text-black">
+                    <div className="flex flex-col text-sm text-neutral-100 max-md:mt-8">
+                      <div className="text-sm font-bold text-white">
                         About Us
                       </div>
                       <div className="mt-4 flex items-center">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
-                          className="w-6 h-6 mr-2 text-gray-500"
+                          className="w-6 h-6 mr-2 text-gray-200"
                         >
                           <path d="M22 5v4l-10 4L2 9V5a1 1 0 0 1 1-1h18a1 1 0 0 1 1 1zM2 11.154V19a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-7.846l-10 4z" />
                         </svg>
-                        <div className="text-gray-700 font-medium font-bold">
+                        <div className="text-gray-200 font-medium font-bold">
                           Email:
                         </div>
                       </div>
@@ -58,11 +58,11 @@ export default function Footer() {
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           viewBox="0 0 24 24"
-                          className="w-6 h-6 mr-2 text-gray-500"
+                          className="w-6 h-6 mr-2 text-gray-200"
                         >
                           <path d="M21.384,17.752a2.108,2.108,0,0,1-.522,3.359,7.543,7.543,0,0,1-5.476.642C10.5,20.523,3.477,13.5,2.247,8.614a7.543,7.543,0,0,1,.642-5.476,2.108,2.108,0,0,1,3.359-.522L8.333,4.7a2.094,2.094,0,0,1,.445,2.328A3.877,3.877,0,0,1,8,8.2c-2.384,2.384,5.417,10.185,7.8,7.8a3.877,3.877,0,0,1,1.173-.781,2.092,2.092,0,0,1,2.328.445Z" />
                         </svg>
-                        <div className="text-gray-700 font-medium font-bold">
+                        <div className="text-gray-200 font-medium font-bold">
                           Phone:
                         </div>
                       </div>
@@ -70,8 +70,8 @@ export default function Footer() {
                     </div>
                   </div>
                   <div className="flex flex-col ml-4 w-[23%] max-md:ml-0 max-md:w-full">
-                    <div className="flex flex-col text-sm text-neutral-700 max-md:mt-8">
-                      <div className="text-sm font-bold text-black">
+                    <div className="flex flex-col text-sm text-neutral-200 max-md:mt-8">
+                      <div className="text-sm font-bold text-white">
                         Address
                       </div>
                       <div
@@ -84,13 +84,13 @@ export default function Footer() {
                       >
                         <svg
                           viewBox="0 0 48 48"
-                          className="w-6 h-6 mr-2 text-gray-500"
+                          className="w-6 h-6 mr-2 text-gray-200"
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <path d="M24 4c-7.73 0-14 6.27-14 14 0 10.5 14 26 14 26s14-15.5 14-26c0-7.73-6.27-14-14-14zm0 19c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
                           <path d="M0 0h48v48h-48z" fill="none" />
                         </svg>
-                        <div className="text-gray-700 font-medium font-bold">
+                        <div className="text-gray-200 font-medium font-bold">
                           Quan 9
                         </div>
                       </div>
@@ -105,13 +105,13 @@ export default function Footer() {
                       >
                         <svg
                           viewBox="0 0 48 48"
-                          className="w-6 h-6 mr-2 text-gray-500"
+                          className="w-6 h-6 mr-2 text-gray-200"
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <path d="M24 4c-7.73 0-14 6.27-14 14 0 10.5 14 26 14 26s14-15.5 14-26c0-7.73-6.27-14-14-14zm0 19c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
                           <path d="M0 0h48v48h-48z" fill="none" />
                         </svg>
-                        <div className="text-gray-700 font-medium font-bold">
+                        <div className="text-gray-200 font-medium font-bold">
                           Bình Dương
                         </div>
                       </div>
@@ -126,13 +126,13 @@ export default function Footer() {
                       >
                         <svg
                           viewBox="0 0 48 48"
-                          className="w-6 h-6 mr-2 text-gray-500"
+                          className="w-6 h-6 mr-2 text-gray-200"
                           xmlns="http://www.w3.org/2000/svg"
                         >
                           <path d="M24 4c-7.73 0-14 6.27-14 14 0 10.5 14 26 14 26s14-15.5 14-26c0-7.73-6.27-14-14-14zm0 19c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
                           <path d="M0 0h48v48h-48z" fill="none" />
                         </svg>
-                        <div className="text-gray-700 font-medium font-bold">
+                        <div className="text-gray-200 font-medium font-bold">
                           Khu công nghệ cao
                         </div>
                       </div>
@@ -150,15 +150,15 @@ export default function Footer() {
 
             <div className="flex flex-col ml-4 w-[33%] max-md:ml-0 max-md:w-full">
               <div className="flex flex-col grow max-md:mt-8">
-                <div className="flex items-center py-3 border-b border-b-gray-400 text-sm md:text-2xl md:mr-32 ">
+                <div className="flex items-center py-3 border-b text-white text-sm md:text-2xl md:mr-32 ">
                   <h2 className="font-bold ">Garams</h2>
                 </div>
-                <div className="mt-2 text-lg text-black">
+                <div className="mt-2 text-lg text-white">
                   We are the top gara service
                 </div>
                 <Link
                   href={"#"}
-                  className="justify-center self-start hover:bg-gray-700 hover:text-white transition duration-300 p-7 mt-6 text-xl text-center text-white max-md:mt-10 bg-black no-underline hover:underline"
+                  className="justify-center self-start hover:bg-gray-700 hover:text-black transition duration-300 p-7 mt-6 text-xl text-center text-white max-md:mt-10 bg-black no-underline hover:underline"
                 >
                   Our Service
                 </Link>
