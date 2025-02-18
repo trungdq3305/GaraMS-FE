@@ -11,11 +11,11 @@ export default function Navbar() {
         <Link href="/" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Home</div>
         </Link>
-        <Link href="/vehicles" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
-          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Vehicles</div>
+        <Link href="/services" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
+          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Services</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
-          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Service</div>
+          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Appointments</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">About Us</div>
@@ -42,6 +42,12 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex mr-4 mt-1">
+              <Link href="/login" className="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full font-semibold">
+                Login
+              </Link>
+              <Link href="/signup" className="ml-2 px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded-full font-semibold">
+                Sign Up
+              </Link>
             </div>
           )}
         </div>
