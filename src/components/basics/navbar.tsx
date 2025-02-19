@@ -15,7 +15,7 @@ export default function Navbar() {
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Services</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
-          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Appointments</div>
+          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">News</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">About Us</div>
@@ -27,7 +27,7 @@ export default function Navbar() {
       </div>
 
       <Link href="/" className="flex items-center py-3 border-b border-b-gray-400 text-sm md:text-2xl md:mr-32">
-        <h2 className="font-bold text-white">G A R A M S</h2>
+        <h2 className="text-4xl  font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600">G A R A M S</h2>
       </Link>
 
       <div className="flex-initial">
@@ -41,14 +41,21 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex mr-4 mt-1">
-              <Link href="/login" className="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded-full font-semibold">
+            <div className="flex space-x-4 mt-4">
+              <Link
+                href="/login"
+                className="px-6 py-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-gray-700"
+              >
                 Login
               </Link>
-              <Link href="/signup" className="ml-2 px-4 py-2 text-white bg-green-500 hover:bg-green-600 rounded-full font-semibold">
+              <Link
+                href="/signup"
+                className="px-6 py-3 text-white bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-purple-700"
+              >
                 Sign Up
               </Link>
             </div>
+
           )}
         </div>
       </div>

@@ -38,40 +38,42 @@ const services = [
 
 export default function ServicesPage() {
     return (
-        <div className="container mx-auto px-4 py-16">
-            <motion.h1
-                initial={{ opacity: 0, y: -50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-5xl font-extrabold text-gray-900 text-center mb-12"
-            >
-                Our Services
-            </motion.h1>
+        <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-100">
+            <div className="container mx-auto px-4 py-16">
+                <motion.h1
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8 }}
+                    className="text-4xl md:text-5xl font-bold text-center mb-16 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600"
+                >
+                    Our Services
+                </motion.h1>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-                {services.map((service, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.6, delay: index * 0.2 }}
-                        className="relative h-96 rounded-xl overflow-hidden shadow-xl group"
-                    >
-                        <Image
-                            src={service.img}
-                            alt={service.title}
-                            layout="fill"
-                            objectFit="cover"
-                            className="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 group-hover:bg-opacity-70 transition-all duration-500 flex flex-col justify-center items-center text-center p-6">
-                            <h3 className="text-3xl font-bold text-white drop-shadow-lg">{service.title}</h3>
-                            <p className="text-lg text-gray-200 mt-4 bg-gray-900 bg-opacity-50 p-3 rounded-lg shadow-md">
-                                {service.desc}
-                            </p>
-                        </div>
-                    </motion.div>
-                ))}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {services.map((service, index) => (
+                        <motion.div
+                            key={index}
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.6, delay: index * 0.2 }}
+                            className="relative h-96 rounded-xl overflow-hidden shadow-xl group"
+                        >
+                            <Image
+                                src={service.img}
+                                alt={service.title}
+                                layout="fill"
+                                objectFit="cover"
+                                className="absolute inset-0 w-full h-full group-hover:scale-110 transition-transform duration-700"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-50 group-hover:bg-opacity-70 transition-all duration-500 flex flex-col justify-center items-center text-center p-6">
+                                <h3 className="text-3xl font-bold text-white drop-shadow-lg">{service.title}</h3>
+                                <p className="text-lg mt-4 bg-gray-900 bg-opacity-50 p-3 rounded-lg shadow-md">
+                                    {service.desc}
+                                </p>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
             </div>
         </div>
     );
