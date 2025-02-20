@@ -15,7 +15,7 @@ export default function Navbar() {
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Vehicles</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
-          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">News</div>
+          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Service</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">About Us</div>
@@ -41,19 +41,7 @@ export default function Navbar() {
               </div>
             </div>
           ) : (
-            <div className="flex space-x-4 mt-4">
-              <Link
-                href="/login"
-                className="px-6 py-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-gray-700"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                className="px-6 py-3 text-white bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-purple-700"
-              >
-                Sign Up
-              </Link>
+            <div className="flex mr-4 mt-1">
             </div>
 
           )}
