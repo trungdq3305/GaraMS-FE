@@ -11,8 +11,8 @@ export default function Navbar() {
         <Link href="/" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Home</div>
         </Link>
-        <Link href="/services" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
-          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Services</div>
+        <Link href="/vehicles" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
+          <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">Vehicles</div>
         </Link>
         <Link href="#" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold">
           <div className="flex items-center relative cursor-pointer whitespace-nowrap text-white">News</div>
