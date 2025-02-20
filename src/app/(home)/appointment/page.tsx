@@ -39,8 +39,8 @@ export default function AppointmentPage() {
         const fetchServices = async () => {
             try {
                 const response = await axiosInstance.get("service/services");
-                const services = response.data.map((service: any) => ({
-                    id: service.serviceId,
+                const services = response.data.map((service: any, index: number) => ({
+                    id: service.serviceId || index + 1, // Ensure a unique id
                     name: service.serviceName,
                     price: service.price,
                     description: service.description,
