@@ -1,83 +1,68 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, DatePicker } from "antd";
+import { useEffect, useRef, useState } from "react";
+import { Button, Input as AntInput, Space, Table, Modal, message } from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
+import axios from "axios";
+import moment from "moment";
+
+interface AppointmentService {
+  serviceName: string;
+  totalPrice: number;
+}
 
 interface DataType {
   key: string;
-  stt: number;
-  sohopdong: string;
-  sodonhang: number;
-  nhathauphu: string;
-  duan: string;
-  ngaytaobangkhoiluong: string;
-  tengoithau: string;
-  trangthai: string;
-  phienbandaduyet: string;
+  appointmentId: number;
+  date: string;
+  status: string;
+  vehicle: string;
+  note: string;
+  services: AppointmentService[];
 }
 
 type DataIndex = keyof DataType;
 
-const data: DataType[] = [
-  {
-    key: "1",
-    stt: 1,
-    sohopdong: "CN24-01/TP/24/3899",
-    sodonhang: 4600006325,
-    nhathauphu: "102092 CTY BẢO HIỂM PVI PHÍA NAM",
-    duan: "CN24-01 DỰ ÁN PHÁT TRIỂN C.NGHIỆP YÊN PHONG BWID",
-    ngaytaobangkhoiluong: "",
-    tengoithau: "CN24-01.01 Gói nhà kho, hạ tầng, cơ điện",
-    trangthai: "Đang thực hiện",
-    phienbandaduyet: "",
-  },
-  {
-    key: "2",
-    stt: 2,
-    sohopdong: "CN22-18/TP/23/884",
-    sodonhang: 4600005503,
-    nhathauphu:
-      "110417 CÔNG TY CỔ PHẦN THƯƠNG MẠI VÀ VẬT LIỆU XÂY DỰNG THIÊN LƯƠNG",
-    duan: "CN22-18 VINFAST-TỔ HỢP SẢN XUẤT Ô TÔ, XE MÁY-GÐ3",
-    ngaytaobangkhoiluong: "22/07/2024",
-    tengoithau: "CN22-18.02 Gói thầu XD",
-    trangthai: "Đang thực hiện",
-    phienbandaduyet: "",
-  },
-  {
-    key: "3",
-    stt: 3,
-    sohopdong: "CS22-10/TP/22/1815",
-    sodonhang: 4500002944,
-    nhathauphu: "108864 CÔNG TY CỔ PHẦN KIẾN TRÚC - XÂY DỰNG XANH BABYLON",
-    duan: "CS22-10 CHARM RESORT HO TRAM",
-    ngaytaobangkhoiluong: "12/09/2024",
-    tengoithau: "CS22-10.02 Gói thầu",
-    trangthai: "Đang thực hiện",
-    phienbandaduyet: "",
-  },
-  {
-    key: "4",
-    stt: 4,
-    sohopdong: "C.18.049-02/TP/024",
-    sodonhang: 4600005561,
-    nhathauphu: "101680 CÔNG TY TNHH ĐẦU TƯ RDC",
-    duan: "CS20-06 VINHOMES GRAND PARK Q9-PK1 PK2 PK3 TTTM",
-    ngaytaobangkhoiluong: "23/07/2024",
-    tengoithau: "CS20-06.02 Gói thầu PK1",
-    trangthai: "",
-    phienbandaduyet: "",
-  },
-];
-
 const WorkVolumePage = () => {
+  const [data, setData] = useState<DataType[]>([]);
+  const [loading, setLoading] = useState(false);
   const [, setSearchText] = useState("");
   const [, setSearchedColumn] = useState("");
+  const [rejectModalVisible, setRejectModalVisible] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+  const [reason, setReason] = useState("");
   const searchInput = useRef<InputRef>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("https://localhost:7102/api/appointments");
+        const appointments = response.data.map((item: any) => ({
+          key: item.appointmentId.toString(),
+          appointmentId: item.appointmentId,
+          date: moment(item.date).format("DD/MM/YYYY HH:mm"),
+          status: item.status,
+          vehicle: `${item.vehicle.brand} - ${item.vehicle.model} (${item.vehicle.plateNumber})`,
+          note: item.note || "",
+          services: item.appointmentServices.map((s: any) => ({
+            serviceName: s.service.serviceName,
+            totalPrice: s.service.totalPrice,
+          })),
+        }));
+        setData(appointments);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSearch = (
     selectedKeys: string[],
@@ -94,6 +79,44 @@ const WorkVolumePage = () => {
     setSearchText("");
   };
 
+  const handleAccept = async (appointmentId: number) => {
+    try {
+      await axios.put(`https://localhost:7102/api/appointments/status-update/${appointmentId}?status=Accept&reason=1`);
+      message.success("Appointment accepted successfully.");
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.appointmentId === appointmentId ? { ...item, status: "Accept" } : item
+        )
+      );
+    } catch (error) {
+      console.error("Error accepting appointment:", error);
+      message.error("Failed to accept appointment.");
+    }
+  };
+
+  const handleReject = async () => {
+    if (!reason) {
+      message.error("Please provide a reason for rejection.");
+      return;
+    }
+
+    try {
+      await axios.put(`https://localhost:7102/api/appointments/status-update/${selectedAppointmentId}?status=Reject&reason=${reason}`);
+      message.success("Appointment rejected successfully.");
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.appointmentId === selectedAppointmentId ? { ...item, status: "Reject" } : item
+        )
+      );
+      setRejectModalVisible(false);
+      setReason("");
+      setSelectedAppointmentId(null);
+    } catch (error) {
+      console.error("Error rejecting appointment:", error);
+      message.error("Failed to reject appointment.");
+    }
+  };
+
   const getColumnSearchProps = (
     dataIndex: DataIndex
   ): TableColumnType<DataType> => ({
@@ -108,10 +131,20 @@ const WorkVolumePage = () => {
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
-          <Button type="primary" onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
             Search
           </Button>
-          <Button onClick={() => clearFilters && handleReset(clearFilters)} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
           <Button type="link" size="small" onClick={() => confirm({ closeDropdown: false })}>
@@ -124,28 +157,72 @@ const WorkVolumePage = () => {
       </div>
     ),
     filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
-    onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes((value as string).toLowerCase()),
+    onFilter: (value, record) =>
+      record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase()),
   });
 
   const columns: ColumnsType<DataType> = [
-    { title: "STT", dataIndex: "stt", key: "stt" },
-    { title: "Số hợp đồng", dataIndex: "sohopdong", key: "sohopdong" },
-    { title: "Số đơn hàng", dataIndex: "sodonhang", key: "sodonhang", ...getColumnSearchProps("sodonhang"), sorter: (a, b) => a.sodonhang - b.sodonhang },
-    { title: "Nhà thầu phụ", dataIndex: "nhathauphu", key: "nhathauphu", ...getColumnSearchProps("nhathauphu") },
-    { title: "Dự án", dataIndex: "duan", key: "duan", ...getColumnSearchProps("duan") },
-    { title: "Ngày tạo bảng khối lượng", dataIndex: "ngaytaobangkhoiluong", key: "ngaytaobangkhoiluong" },
-    { title: "Tên gói thầu", dataIndex: "tengoithau", key: "tengoithau", ...getColumnSearchProps("tengoithau") },
-    { title: "Trạng thái", dataIndex: "trangthai", key: "trangthai" },
-    { title: "Phiên bản đã duyệt", dataIndex: "phienbandaduyet", key: "phienbandaduyet" },
+    { title: "ID", dataIndex: "appointmentId", key: "appointmentId" },
+    { title: "Booked Date", dataIndex: "date", key: "date", sorter: (a, b) => moment(a.date, "DD/MM/YYYY HH:mm").valueOf() - moment(b.date, "DD/MM/YYYY HH:mm").valueOf() },
+    { title: "Status", dataIndex: "status", key: "status", ...getColumnSearchProps("status") },
+    { title: "Vehicle", dataIndex: "vehicle", key: "vehicle", ...getColumnSearchProps("vehicle") },
+    { title: "Note", dataIndex: "note", key: "note" },
+    {
+      title: "Services",
+      dataIndex: "services",
+      key: "services",
+      render: (services: AppointmentService[]) =>
+        services.map((s) => `${s.serviceName} (${s.totalPrice} VND)`).join(", "),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space>
+          <Button type="primary" onClick={() => handleAccept(record.appointmentId)}>
+            Accept
+          </Button>
+          <Button
+  type="primary"
+  danger
+  onClick={() => {
+    setRejectModalVisible(true);
+    setSelectedAppointmentId(record.appointmentId);
+  }}
+>
+  Reject
+</Button>
+
+        </Space>
+      ),
+    },
   ];
 
   return (
     <div>
-      <div className="text-xl font-semibold mb-4">Danh sách bảng khối lượng</div>
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <AntInput prefix={<SearchOutlined />} placeholder="Enter Contract No. Ref, subcontractor,..." style={{ border: "none", backgroundColor: "transparent" }} />
-      </Space>
-      <Table<DataType> columns={columns} dataSource={data} pagination={{ pageSize: 10 }} scroll={{ x: 1000 }} />
+      <div className="text-xl font-semibold mb-4">Danh sách cuộc hẹn</div>
+      <Table<DataType>
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+        scroll={{ x: 1000 }}
+      />
+      <Modal
+        title="Reject Appointment"
+        open={rejectModalVisible}
+        onOk={handleReject}
+        onCancel={() => {
+          setRejectModalVisible(false);
+          setReason("");
+        }}
+      >
+        <AntInput
+          placeholder="Enter reason for rejection"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
+      </Modal>
     </div>
   );
 };

@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import axiosInstance from "../../../dbUtils/axios"; // Đường dẫn tới file axiosInstance của bạn
 
 interface Service {
     id: number;
     name: string;
     price: number;
+    description: string;
 }
 
 interface FormData {
@@ -19,14 +21,6 @@ interface FormData {
     services: Service[];
 }
 
-const servicesList: Service[] = [
-    { id: 1, name: "Oil Change", price: 50 },
-    { id: 2, name: "Tire Rotation", price: 30 },
-    { id: 3, name: "Brake Inspection", price: 40 },
-    { id: 4, name: "Car Wash", price: 20 },
-    { id: 5, name: "Engine Check", price: 100 },
-];
-
 export default function AppointmentPage() {
     const [formData, setFormData] = useState<FormData>({
         date: "",
@@ -37,6 +31,31 @@ export default function AppointmentPage() {
         phone: "",
         services: [],
     });
+    const [servicesList, setServicesList] = useState<Service[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchServices = async () => {
+            try {
+                const response = await axiosInstance.get("service/services");
+                const services = response.data.map((service: any) => ({
+                    id: service.serviceId,
+                    name: service.serviceName,
+                    price: service.price,
+                    description: service.description,
+                }));
+                setServicesList(services);
+            } catch (err) {
+                setError("Failed to load services.");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchServices();
+    }, []);
 
     const handleServiceToggle = (service: Service) => {
         setFormData((prev) => {
@@ -49,7 +68,30 @@ export default function AppointmentPage() {
         });
     };
 
+    const handleSubmit = async () => {
+        const payload = {
+            appointmentId: 0, // ID sẽ được tạo bởi server
+            date: formData.date,
+            note: formData.note,
+            status: "Pending", // Đặt trạng thái mặc định
+            vehicleId: parseInt(formData.vehicle),
+            serviceIds: formData.services.map((service) => service.id),
+        };
+
+        try {
+            const response = await axiosInstance.post("appointments", payload);
+            alert("Appointment booked successfully!");
+            console.log("Response:", response.data);
+        } catch (err) {
+            console.error("Error booking appointment:", err);
+            alert("Failed to book appointment.");
+        }
+    };
+
     const totalPrice = formData.services.reduce((sum, service) => sum + service.price, 0);
+
+    if (loading) return <div>Loading services...</div>;
+    if (error) return <div className="text-red-600">{error}</div>;
 
     return (
         <motion.div
@@ -66,9 +108,9 @@ export default function AppointmentPage() {
             >
                 <h1 className="text-2xl font-bold mb-4">Book an Appointment</h1>
                 <label className="block mb-2">
-                    <span className="text-gray-700">Date:</span>
+                    <span className="text-gray-700">Date and Time:</span>
                     <input
-                        type="date"
+                        type="datetime-local"
                         className="w-full p-2 border rounded mt-1"
                         value={formData.date}
                         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
@@ -82,23 +124,14 @@ export default function AppointmentPage() {
                         onChange={(e) => setFormData({ ...formData, note: e.target.value })}
                     />
                 </label>
-                <label className="block mb-2">
-                    <span className="text-gray-700">Vehicle:</span>
-                    <input
-                        type="text"
-                        className="w-full p-2 border rounded mt-1"
-                        value={formData.vehicle}
-                        onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
-                    />
-                </label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label className="block">
-                        <span className="text-gray-700">Username:</span>
+                        <span className="text-gray-700">Full Name:</span>
                         <input
                             type="text"
                             className="w-full p-2 border rounded mt-1"
                             value={formData.username}
-                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                            readOnly
                         />
                     </label>
                     <label className="block">
@@ -107,7 +140,7 @@ export default function AppointmentPage() {
                             type="email"
                             className="w-full p-2 border rounded mt-1"
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                            readOnly
                         />
                     </label>
                     <label className="block">
@@ -116,7 +149,16 @@ export default function AppointmentPage() {
                             type="tel"
                             className="w-full p-2 border rounded mt-1"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            readOnly
+                        />
+                    </label>
+                    <label className="block">
+                        <span className="text-gray-700">Vehicle:</span>
+                        <input
+                            type="number"
+                            className="w-full p-2 border rounded mt-1"
+                            value={formData.vehicle}
+                            onChange={(e) => setFormData({ ...formData, vehicle: e.target.value })}
                         />
                     </label>
                 </div>
@@ -134,7 +176,9 @@ export default function AppointmentPage() {
                                     checked={formData.services.some((s) => s.id === service.id)}
                                     onChange={() => handleServiceToggle(service)}
                                 />
-                                <span>{service.name} - ${service.price}</span>
+                                <span>
+                                    {service.name} - ${service.price}
+                                </span>
                             </motion.label>
                         ))}
                     </div>
@@ -144,7 +188,7 @@ export default function AppointmentPage() {
                 </div>
                 <motion.button
                     className="w-full mt-4 bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
-                    onClick={() => alert("Appointment booked successfully!")}
+                    onClick={handleSubmit}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                 >
