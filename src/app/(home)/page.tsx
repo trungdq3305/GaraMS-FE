@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ChevronDown, Star, Users, Clock } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const images = [
   "https://img.freepik.com/premium-photo/car-garage-with-counter-background_265515-9144.jpg",
@@ -44,14 +45,7 @@ export default function HomePage() {
   const [ctaVisible, setCtaVisible] = useState(false);
   const [bookingFormVisible, setBookingFormVisible] = useState(false);
   const [quickStatsVisible, setQuickStatsVisible] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % images.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
+  
   useEffect(() => {
     const handleScroll = () => {
       const features = document.getElementById('features');

@@ -6,8 +6,8 @@ import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
-import axios from "axios";
 import moment from "moment";
+import { getAppointments, updateAppointmentStatus } from "@/dbUtils/ManagerAPIs/appointmentsservice";
 
 interface AppointmentService {
   serviceName: string;
@@ -34,28 +34,35 @@ const WorkVolumePage = () => {
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
   const [reason, setReason] = useState("");
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
+const [successMessage, setSuccessMessage] = useState("");
+
   const searchInput = useRef<InputRef>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("https://localhost:7102/api/appointments");
-        const appointments = response.data.map((item: any) => ({
+        const response = await getAppointments();
+        console.log(response)
+        const appointments = response.map((item: any) => ({
           key: item.appointmentId.toString(),
           appointmentId: item.appointmentId,
           date: moment(item.date).format("DD/MM/YYYY HH:mm"),
           status: item.status,
-          vehicle: `${item.vehicle.brand} - ${item.vehicle.model} (${item.vehicle.plateNumber})`,
+          vehicle: item.vehicle
+            ? `${item.vehicle.brand} - ${item.vehicle.model} (${item.vehicle.plateNumber})`
+            : "No Vehicle Info", // Fallback text if vehicle is null or undefined
           note: item.note || "",
           services: item.appointmentServices.map((s: any) => ({
-            serviceName: s.service.serviceName,
-            totalPrice: s.service.totalPrice,
+            serviceName: s.service?.serviceName || "Unknown Service",
+            totalPrice: s.service?.totalPrice || 0,
           })),
         }));
         setData(appointments);
       } catch (error) {
         console.error("Error fetching data:", error);
+        message.error("Failed to fetch appointments.");
       } finally {
         setLoading(false);
       }
@@ -81,41 +88,44 @@ const WorkVolumePage = () => {
 
   const handleAccept = async (appointmentId: number) => {
     try {
-      await axios.put(`https://localhost:7102/api/appointments/status-update/${appointmentId}?status=Accept&reason=1`);
-      message.success("Appointment accepted successfully.");
+      await updateAppointmentStatus(appointmentId, "Accept", "1");
       setData((prevData) =>
         prevData.map((item) =>
           item.appointmentId === appointmentId ? { ...item, status: "Accept" } : item
         )
       );
+      setSuccessMessage(`Appointment #${appointmentId} đã được Accept thành công.`);
+      setSuccessModalVisible(true); // Hiển thị Modal
     } catch (error) {
       console.error("Error accepting appointment:", error);
-      message.error("Failed to accept appointment.");
+      message.error(`Không thể Accept Appointment #${appointmentId}.`);
     }
   };
-
+  
   const handleReject = async () => {
-    if (!reason) {
-      message.error("Please provide a reason for rejection.");
+    if (!reason.trim()) {
+      message.error("Vui lòng nhập lý do từ chối.");
       return;
     }
-
+  
     try {
-      await axios.put(`https://localhost:7102/api/appointments/status-update/${selectedAppointmentId}?status=Reject&reason=${reason}`);
-      message.success("Appointment rejected successfully.");
+      await updateAppointmentStatus(selectedAppointmentId as number, "Reject", reason);
       setData((prevData) =>
         prevData.map((item) =>
           item.appointmentId === selectedAppointmentId ? { ...item, status: "Reject" } : item
         )
       );
+      setSuccessMessage(`Appointment #${selectedAppointmentId} đã được Reject thành công.`);
+      setSuccessModalVisible(true); // Hiển thị Modal
       setRejectModalVisible(false);
       setReason("");
       setSelectedAppointmentId(null);
     } catch (error) {
       console.error("Error rejecting appointment:", error);
-      message.error("Failed to reject appointment.");
+      message.error(`Không thể Reject Appointment #${selectedAppointmentId}.`);
     }
   };
+  
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
@@ -183,16 +193,15 @@ const WorkVolumePage = () => {
             Accept
           </Button>
           <Button
-  type="primary"
-  danger
-  onClick={() => {
-    setRejectModalVisible(true);
-    setSelectedAppointmentId(record.appointmentId);
-  }}
->
-  Reject
-</Button>
-
+            type="primary"
+            danger
+            onClick={() => {
+              setRejectModalVisible(true);
+              setSelectedAppointmentId(record.appointmentId);
+            }}
+          >
+            Reject
+          </Button>
         </Space>
       ),
     },
@@ -200,7 +209,7 @@ const WorkVolumePage = () => {
 
   return (
     <div>
-      <div className="text-xl font-semibold mb-4">Danh sách cuộc hẹn</div>
+      <div className="text-xl font-semibold mb-4">Appointments Management</div>
       <Table<DataType>
         columns={columns}
         dataSource={data}
@@ -208,6 +217,7 @@ const WorkVolumePage = () => {
         pagination={{ pageSize: 10 }}
         scroll={{ x: 1000 }}
       />
+      {/* Modal Reject */}
       <Modal
         title="Reject Appointment"
         open={rejectModalVisible}
@@ -222,6 +232,21 @@ const WorkVolumePage = () => {
           value={reason}
           onChange={(e) => setReason(e.target.value)}
         />
+      </Modal>
+  
+      {/* Modal Success */}
+      <Modal
+        title="Thông báo"
+        open={successModalVisible}
+        onOk={() => setSuccessModalVisible(false)}
+        onCancel={() => setSuccessModalVisible(false)}
+        footer={[
+          <Button key="close" type="primary" onClick={() => setSuccessModalVisible(false)}>
+            Đóng
+          </Button>,
+        ]}
+      >
+        <p>{successMessage}</p>
       </Modal>
     </div>
   );

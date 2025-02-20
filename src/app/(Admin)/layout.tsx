@@ -29,39 +29,16 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
           <ul className="space-y-4">
             <li>
               <Link
-                href="/appointments"
+                href="/dashboard"
                 className="block px-4 py-2 rounded-lg hover:bg-gray-700"
               >
                 Appointments
               </Link>
             </li>
+            
             <li>
               <Link
-                href="/manager/vouchers"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Vouchers
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/manager/products"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Products
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/manager/reports"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Reports
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/manager/settings"
+                href="/usermanagement"
                 className="block px-4 py-2 rounded-lg hover:bg-gray-700"
               >
                 Settings
