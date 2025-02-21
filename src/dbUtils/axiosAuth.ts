@@ -1,33 +1,19 @@
-import axios from 'axios';
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-// Function to retrieve the token from localStorage
-const getToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('accessToken');
-  }
-  return '';
-};
-
-// Create an axios instance with a base URL
-const instance = axios.create({
-  baseURL: "https://localhost:7156/",
-  headers: {
-    "Content-Type": "application/json"
-  }
-});
-
-// Use an interceptor to append the Authorization header before each request
-instance.interceptors.request.use(
-  config => {
-    const token = getToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+export const axiosAuth = async (token: string, router: any) => {
+  try {
+    // Decode token (JWT payload)
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    
+    // Kiểm tra role
+    if (payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] === "3") {
+      router.push("/appointments");
+    } else {
+      router.push("/");
     }
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
+  } catch (error) {
+    console.error("Token không hợp lệ:", error);
+    router.push("/login"); // Quay lại trang đăng nhập nếu lỗi
   }
-);
-
-export default instance;
+};

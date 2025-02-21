@@ -34,6 +34,26 @@ export default function AppointmentPage() {
     const [servicesList, setServicesList] = useState<Service[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState<boolean>(false);
+
+    // Tự động điền thông tin người dùng từ localStorage
+    useEffect(() => {
+        const userInfo = localStorage.getItem("userInfo");
+        console.log(userInfo)
+        if (userInfo) {
+            try {
+                const user = JSON.parse(userInfo);
+                setFormData((prev) => ({
+                    ...prev,
+                    username: user.fullName || "",
+                    email: user.email || "",
+                    phone: user.phone || "",
+                }));
+            } catch (err) {
+                console.error("Failed to parse userinfo from localStorage:", err);
+            }
+        }
+    }, []);
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -80,12 +100,17 @@ export default function AppointmentPage() {
 
         try {
             const response = await axiosInstance.post("appointments", payload);
-            alert("Appointment booked successfully!");
             console.log("Response:", response.data);
+            setShowModal(true); // Hiển thị modal sau khi đặt lịch thành công
         } catch (err) {
             console.error("Error booking appointment:", err);
             alert("Failed to book appointment.");
         }
+    };
+
+    const handleReload = () => {
+        setShowModal(false);
+        window.location.reload();
     };
 
     const totalPrice = formData.services.reduce((sum, service) => sum + service.price, 0);
@@ -195,6 +220,30 @@ export default function AppointmentPage() {
                     Book Appointment
                 </motion.button>
             </motion.div>
+
+            {/* Modal */}
+            {showModal && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-sm w-full shadow-lg">
+                        <h2 className="text-lg font-semibold mb-4">Appointment Successful!</h2>
+                        <p className="mb-4">Do you want to book another appointment?</p>
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400"
+                                onClick={() => setShowModal(false)}
+                            >
+                                No
+                            </button>
+                            <button
+                                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                                onClick={handleReload}
+                            >
+                                Yes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </motion.div>
     );
 }
