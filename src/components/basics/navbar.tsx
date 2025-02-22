@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { User } from "lucide-react"; // Import icon từ lucide-react
 import useAuthStore from "@/app/login/hooks/useAuthStore";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   // const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -26,9 +27,11 @@ export default function Navbar() {
   // };
   const { user, logout } = useAuthStore(); // Lấy user và logout từ useAuthStore
   const isAuthenticated = !!user; // Kiểm tra xem người dùng đã đăng nhập hay chưa
+  const router = useRouter();
 
   const handleLogout = () => {
     logout(); // Gọi hàm logout từ useAuthStore
+    router.push("/login");
   };
 
   return (
@@ -89,7 +92,9 @@ export default function Navbar() {
         <div className="flex justify-end items-center relative">
           {isAuthenticated ? (
             <div className="flex items-center mr-4 space-x-3">
-              <User className="text-white w-6 h-6" /> {/* Icon người dùng */}
+              <Link href="/profile">
+                <User className="text-white w-6 h-6" /> {/* Icon người dùng */}
+              </Link>
               <div className="text-white font-semibold hover:underline">
                 {user.fullName}
               </div>
