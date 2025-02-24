@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-// import { useRouter } from "next/navigation";
 import AppointmentHistory from "@/app/appointmentbycustomer/page";
+import Vehicles from "../vehicle/page";
+import useAuthStore from "@/app/login/hooks/useAuthStore";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  //   const router = useRouter();
+  const { user } = useAuthStore();
 
   return (
     <div className="p-8">
@@ -29,6 +30,14 @@ const Profile = () => {
         >
           Appointment History
         </button>
+        <button
+          onClick={() => setActiveTab("vehicles")}
+          className={`px-4 py-2 ${
+            activeTab === "vehicles" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+        >
+          Vehicles
+        </button>
       </div>
 
       {activeTab === "profile" && (
@@ -36,19 +45,23 @@ const Profile = () => {
           <h2 className="text-2xl font-bold mb-4">Profile Information</h2>
           <div className="space-y-2">
             <p>
-              <strong>Name:</strong>{" "}
+              <strong>Name:</strong> {user?.fullName}
             </p>
             <p>
-              <strong>Email:</strong>{" "}
+              <strong>Email:</strong> {user?.email}
             </p>
             <p>
-              <strong>Phone:</strong>{" "}
+              <strong>Phone:</strong> {user?.phone}
+            </p>
+            <p>
+              <strong>Address:</strong> {user?.address}
             </p>
           </div>
         </div>
       )}
 
       {activeTab === "appointments" && <AppointmentHistory />}
+      {activeTab === "vehicles" && <Vehicles />}
     </div>
   );
 };
