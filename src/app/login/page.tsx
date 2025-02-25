@@ -248,7 +248,7 @@ export default function LoginPage() {
     } else if (userRole === RoleCode.EMPLOYEE) {
       router.push("/appointments");
     } else if (userRole === RoleCode.MANAGER) {
-      router.push("/");
+      router.push("/dashboard");
     } else {
       router.push("/");
     }

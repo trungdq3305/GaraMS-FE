@@ -1,27 +1,12 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-
-const handleLogout = () => {
-  // Xóa token khỏi localStorage và điều hướng đến trang đăng nhập
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("userInfo");
-};
 
 const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
-  const router = useRouter();
-
-  const onLogout = () => {
-    handleLogout();
-    router.push("/login");
-  };
-
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 text-white flex flex-col shadow-md">
+      {/* <aside className="w-64 bg-gray-800 text-white flex flex-col shadow-md">
         <div className="h-20 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
           <h1 className="text-2xl font-bold">GaraMS Manager</h1>
         </div>
@@ -75,12 +60,10 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
         >
           Logout
         </button>
-      </aside>
+      </aside> */}
 
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
   );
 };

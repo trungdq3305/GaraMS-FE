@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -7,7 +8,10 @@ import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import moment from "moment";
-import { getAppointments, updateAppointmentStatus } from "@/dbUtils/ManagerAPIs/appointmentsservice";
+import {
+  getAppointments,
+  updateAppointmentStatus,
+} from "@/dbUtils/ManagerAPIs/appointmentsservice";
 
 interface AppointmentService {
   serviceName: string;
@@ -32,10 +36,12 @@ const WorkVolumePage = () => {
   const [, setSearchText] = useState("");
   const [, setSearchedColumn] = useState("");
   const [rejectModalVisible, setRejectModalVisible] = useState(false);
-  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<
+    number | null
+  >(null);
   const [reason, setReason] = useState("");
   const [successModalVisible, setSuccessModalVisible] = useState(false);
-const [successMessage, setSuccessMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const searchInput = useRef<InputRef>(null);
 
@@ -44,7 +50,7 @@ const [successMessage, setSuccessMessage] = useState("");
       setLoading(true);
       try {
         const response = await getAppointments();
-        console.log(response)
+        console.log(response);
         const appointments = response.map((item: any) => ({
           key: item.appointmentId.toString(),
           appointmentId: item.appointmentId,
@@ -91,31 +97,43 @@ const [successMessage, setSuccessMessage] = useState("");
       await updateAppointmentStatus(appointmentId, "Accept", "1");
       setData((prevData) =>
         prevData.map((item) =>
-          item.appointmentId === appointmentId ? { ...item, status: "Accept" } : item
+          item.appointmentId === appointmentId
+            ? { ...item, status: "Accept" }
+            : item
         )
       );
-      setSuccessMessage(`Appointment #${appointmentId} đã được Accept thành công.`);
+      setSuccessMessage(
+        `Appointment #${appointmentId} đã được Accept thành công.`
+      );
       setSuccessModalVisible(true); // Hiển thị Modal
     } catch (error) {
       console.error("Error accepting appointment:", error);
       message.error(`Không thể Accept Appointment #${appointmentId}.`);
     }
   };
-  
+
   const handleReject = async () => {
     if (!reason.trim()) {
       message.error("Vui lòng nhập lý do từ chối.");
       return;
     }
-  
+
     try {
-      await updateAppointmentStatus(selectedAppointmentId as number, "Reject", reason);
+      await updateAppointmentStatus(
+        selectedAppointmentId as number,
+        "Reject",
+        reason
+      );
       setData((prevData) =>
         prevData.map((item) =>
-          item.appointmentId === selectedAppointmentId ? { ...item, status: "Reject" } : item
+          item.appointmentId === selectedAppointmentId
+            ? { ...item, status: "Reject" }
+            : item
         )
       );
-      setSuccessMessage(`Appointment #${selectedAppointmentId} đã được Reject thành công.`);
+      setSuccessMessage(
+        `Appointment #${selectedAppointmentId} đã được Reject thành công.`
+      );
       setSuccessModalVisible(true); // Hiển thị Modal
       setRejectModalVisible(false);
       setReason("");
@@ -125,25 +143,36 @@ const [successMessage, setSuccessMessage] = useState("");
       message.error(`Không thể Reject Appointment #${selectedAppointmentId}.`);
     }
   };
-  
 
   const getColumnSearchProps = (
     dataIndex: DataIndex
   ): TableColumnType<DataType> => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <AntInput
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearch(selectedKeys as string[], confirm, dataIndex)
+          }
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
             type="primary"
-            onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+            onClick={() =>
+              handleSearch(selectedKeys as string[], confirm, dataIndex)
+            }
             icon={<SearchOutlined />}
             size="small"
             style={{ width: 90 }}
@@ -157,7 +186,11 @@ const [successMessage, setSuccessMessage] = useState("");
           >
             Reset
           </Button>
-          <Button type="link" size="small" onClick={() => confirm({ closeDropdown: false })}>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => confirm({ closeDropdown: false })}
+          >
             Filter
           </Button>
           <Button type="link" size="small" onClick={() => close()}>
@@ -166,30 +199,57 @@ const [successMessage, setSuccessMessage] = useState("");
         </Space>
       </div>
     ),
-    filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
-      record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase()),
+      record[dataIndex]
+        ?.toString()
+        .toLowerCase()
+        .includes((value as string).toLowerCase()),
   });
 
   const columns: ColumnsType<DataType> = [
     { title: "ID", dataIndex: "appointmentId", key: "appointmentId" },
-    { title: "Booked Date", dataIndex: "date", key: "date", sorter: (a, b) => moment(a.date, "DD/MM/YYYY HH:mm").valueOf() - moment(b.date, "DD/MM/YYYY HH:mm").valueOf() },
-    { title: "Status", dataIndex: "status", key: "status", ...getColumnSearchProps("status") },
-    { title: "Vehicle", dataIndex: "vehicle", key: "vehicle", ...getColumnSearchProps("vehicle") },
+    {
+      title: "Booked Date",
+      dataIndex: "date",
+      key: "date",
+      sorter: (a, b) =>
+        moment(a.date, "DD/MM/YYYY HH:mm").valueOf() -
+        moment(b.date, "DD/MM/YYYY HH:mm").valueOf(),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      ...getColumnSearchProps("status"),
+    },
+    {
+      title: "Vehicle",
+      dataIndex: "vehicle",
+      key: "vehicle",
+      ...getColumnSearchProps("vehicle"),
+    },
     { title: "Note", dataIndex: "note", key: "note" },
     {
       title: "Services",
       dataIndex: "services",
       key: "services",
       render: (services: AppointmentService[]) =>
-        services.map((s) => `${s.serviceName} (${s.totalPrice} VND)`).join(", "),
+        services
+          .map((s) => `${s.serviceName} (${s.totalPrice} VND)`)
+          .join(", "),
     },
     {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button type="primary" onClick={() => handleAccept(record.appointmentId)}>
+          <Button
+            type="primary"
+            onClick={() => handleAccept(record.appointmentId)}
+          >
             Accept
           </Button>
           <Button
@@ -233,7 +293,7 @@ const [successMessage, setSuccessMessage] = useState("");
           onChange={(e) => setReason(e.target.value)}
         />
       </Modal>
-  
+
       {/* Modal Success */}
       <Modal
         title="Thông báo"
@@ -241,7 +301,11 @@ const [successMessage, setSuccessMessage] = useState("");
         onOk={() => setSuccessModalVisible(false)}
         onCancel={() => setSuccessModalVisible(false)}
         footer={[
-          <Button key="close" type="primary" onClick={() => setSuccessModalVisible(false)}>
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => setSuccessModalVisible(false)}
+          >
             Đóng
           </Button>,
         ]}
