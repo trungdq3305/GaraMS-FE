@@ -186,20 +186,20 @@ export default function LoginPage() {
   const { login, setUser, setToken } = useAuthStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoginSuccess, setIsLoginSuccess] = useState(false);
+  const [userRole, setUserRole] = useState<number | null>(null);
 
   const mutation = useMutation({
     mutationFn: login,
     onMutate: () => {
-      setIsLoading(true); // Bắt đầu loading khi mutation bắt đầu
+      setIsLoading(true);
     },
     onSuccess: (response) => {
       setIsLoading(false);
       if (response.success) {
-        const { loginResModel, token } = response.data || {}; // Thêm || {} để tránh lỗi nếu data là null
+        const { loginResModel, token } = response.data || {};
 
-        // Kiểm tra xem loginResModel có tồn tại không
         if (loginResModel) {
-          // Lưu thông tin người dùng vào useAuthStore
           setUser({
             userId: loginResModel.userId,
             fullName: loginResModel.fullName,
@@ -213,17 +213,9 @@ export default function LoginPage() {
           });
           setToken(token ?? "");
 
-          // Điều hướng dựa trên vai trò
-          if (loginResModel.role === RoleCode.ADMIN) {
-            router.push("/dashboard");
-          } else if (loginResModel.role === RoleCode.EMPLOYEE) {
-            router.push("/appointments");
-          } else if (loginResModel.role === RoleCode.MANAGER) {
-            router.push("/");
-          } else {
-            router.push("/");
-          }
-          message.success("Đăng nhập thành công");
+          // Lưu role để sử dụng khi bấm "Đi đến Trang chủ"
+          setUserRole(loginResModel.role);
+          setIsLoginSuccess(true);
         } else {
           message.error("Login failed: User data is missing.");
         }
@@ -236,7 +228,7 @@ export default function LoginPage() {
       message.error("Login failed: " + (error as Error).message);
     },
     onSettled: () => {
-      setIsLoading(false); // Kết thúc loading khi mutation hoàn tất (thành công hoặc lỗi)
+      setIsLoading(false);
     },
   });
 
@@ -248,6 +240,18 @@ export default function LoginPage() {
       password: formData.get("password") as string,
     };
     mutation.mutate(values);
+  };
+
+  const handleGoToHomePage = () => {
+    if (userRole === RoleCode.ADMIN) {
+      router.push("/dashboard");
+    } else if (userRole === RoleCode.EMPLOYEE) {
+      router.push("/appointments");
+    } else if (userRole === RoleCode.MANAGER) {
+      router.push("/");
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -328,6 +332,30 @@ export default function LoginPage() {
           </p>
         </div>
       </motion.div>
+
+      {isLoginSuccess && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-gray-800 p-6 rounded-lg shadow-lg text-center space-y-4"
+          >
+            <h2 className="text-2xl font-bold text-green-400">
+              Đăng nhập thành công!
+            </h2>
+            <p className="text-gray-300">
+              Bạn đã đăng nhập thành công vào hệ thống.
+            </p>
+            <button
+              onClick={handleGoToHomePage}
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-500 hover:to-purple-500"
+            >
+              Đi đến Trang chủ
+            </button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }
