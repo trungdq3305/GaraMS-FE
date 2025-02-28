@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import AppointmentHistory from "@/app/appointmentbycustomer/page";
 import Vehicles from "../vehicle/page";
 import useAuthStore from "@/app/login/hooks/useAuthStore";
 
@@ -19,16 +18,6 @@ const Profile = () => {
           }`}
         >
           Profile
-        </button>
-        <button
-          onClick={() => setActiveTab("appointments")}
-          className={`px-4 py-2 ${
-            activeTab === "appointments"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
-        >
-          Appointment History
         </button>
         <button
           onClick={() => setActiveTab("vehicles")}
@@ -60,7 +49,6 @@ const Profile = () => {
         </div>
       )}
 
-      {activeTab === "appointments" && <AppointmentHistory />}
       {activeTab === "vehicles" && <Vehicles />}
     </div>
   );

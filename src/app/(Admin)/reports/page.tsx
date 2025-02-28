@@ -20,17 +20,17 @@ interface AppointmentService {
 
 interface DataType {
   key: string;
-  appointmentId: number;
-  date: string;
-  status: string;
-  vehicle: string;
-  note: string;
+  reportId: number;
+  title: string;
+  description: string;
+  createdAt: string;
+  updateAt: string;
   services: AppointmentService[];
 }
 
 type DataIndex = keyof DataType;
 
-const AppointmentManagementPage = () => {
+const ReportManagementPage = () => {
   const [data, setData] = useState<DataType[]>([]);
   const [loading, setLoading] = useState(false);
   const [, setSearchText] = useState("");
@@ -92,26 +92,6 @@ const AppointmentManagementPage = () => {
     setSearchText("");
   };
 
-  const handleAccept = async (appointmentId: number) => {
-    try {
-      await updateAppointmentStatus(appointmentId, "Accept", "1");
-      setData((prevData) =>
-        prevData.map((item) =>
-          item.appointmentId === appointmentId
-            ? { ...item, status: "Accept" }
-            : item
-        )
-      );
-      setSuccessMessage(
-        `Appointment #${appointmentId} đã được Accept thành công.`
-      );
-      setSuccessModalVisible(true); // Hiển thị Modal
-    } catch (error) {
-      console.error("Error accepting appointment:", error);
-      message.error(`Không thể Accept Appointment #${appointmentId}.`);
-    }
-  };
-
   const handleReject = async () => {
     if (!reason.trim()) {
       message.error("Vui lòng nhập lý do từ chối.");
@@ -126,7 +106,7 @@ const AppointmentManagementPage = () => {
       );
       setData((prevData) =>
         prevData.map((item) =>
-          item.appointmentId === selectedAppointmentId
+          item.reportId === selectedAppointmentId
             ? { ...item, status: "Reject" }
             : item
         )
@@ -210,36 +190,34 @@ const AppointmentManagementPage = () => {
   });
 
   const columns: ColumnsType<DataType> = [
-    { title: "ID", dataIndex: "appointmentId", key: "appointmentId" },
+    { title: "ReportId", dataIndex: "reportId", key: "reportId" },
     {
-      title: "Booked Date",
-      dataIndex: "date",
-      key: "date",
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+      ...getColumnSearchProps("title"),
+    },
+    { title: "Description", dataIndex: "description", key: "description" },
+    {
+      title: "Created At",
+      dataIndex: "createdAt",
+      key: "createdAt",
       sorter: (a, b) =>
-        moment(a.date, "DD/MM/YYYY HH:mm").valueOf() -
-        moment(b.date, "DD/MM/YYYY HH:mm").valueOf(),
+        moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() -
+        moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf(),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      key: "status",
-      ...getColumnSearchProps("status"),
+      title: "Updated At",
+      dataIndex: "updatedAt",
+      key: "updatedAt",
+      sorter: (a, b) =>
+        moment(a.updateAt, "DD/MM/YYYY HH:mm").valueOf() -
+        moment(b.updateAt, "DD/MM/YYYY HH:mm").valueOf(),
     },
     {
-      title: "Vehicle",
-      dataIndex: "vehicle",
-      key: "vehicle",
-      ...getColumnSearchProps("vehicle"),
-    },
-    { title: "Note", dataIndex: "note", key: "note" },
-    {
-      title: "Services",
-      dataIndex: "services",
-      key: "services",
-      render: (services: AppointmentService[]) =>
-        services
-          .map((s) => `${s.serviceName} (${s.totalPrice} VND)`)
-          .join(", "),
+      title: "CustomerID",
+      dataIndex: "customerId",
+      key: "customerId",
     },
     {
       title: "Action",
@@ -248,16 +226,10 @@ const AppointmentManagementPage = () => {
         <Space>
           <Button
             type="primary"
-            onClick={() => handleAccept(record.appointmentId)}
-          >
-            Accept
-          </Button>
-          <Button
-            type="primary"
             danger
             onClick={() => {
               setRejectModalVisible(true);
-              setSelectedAppointmentId(record.appointmentId);
+              setSelectedAppointmentId(record.reportId);
             }}
           >
             Reject
@@ -316,4 +288,4 @@ const AppointmentManagementPage = () => {
   );
 };
 
-export default AppointmentManagementPage;
+export default ReportManagementPage;
