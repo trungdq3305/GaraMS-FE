@@ -19,3 +19,7 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.nextjs-toast.nextjs-toast-errors-parent.nextjs-error-with-static {
+  display: none;
+}

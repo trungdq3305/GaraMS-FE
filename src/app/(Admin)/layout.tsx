@@ -3,18 +3,14 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-
-const handleLogout = () => {
-  // Xóa token khỏi localStorage và điều hướng đến trang đăng nhập
-  localStorage.removeItem("authToken");
-  localStorage.removeItem("userInfo");
-};
+import useAuthStore from "../login/hooks/useAuthStore";
 
 const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
 
   const onLogout = () => {
-    handleLogout();
+    logout();
     router.push("/login");
   };
 
@@ -32,10 +28,47 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                 href="/dashboard"
                 className="block px-4 py-2 rounded-lg hover:bg-gray-700"
               >
-                Appointments
+                Dashboard
               </Link>
             </li>
-            
+
+            {user?.role === 3 && (
+              <>
+                <li>
+                  <Link
+                    href="/appointments"
+                    className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Appointments
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/manager/vouchers"
+                    className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Vouchers
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/manager/products"
+                    className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Products
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/reports"
+                    className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Reports
+                  </Link>
+                </li>
+              </>
+            )}
+
             <li>
               <Link
                 href="/usermanagement"
@@ -55,9 +88,7 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-6 overflow-auto">
-        {children}
-      </main>
+      <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
   );
 };
