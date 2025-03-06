@@ -44,18 +44,18 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                 </li>
                 <li>
                   <Link
-                    href="/manager/vouchers"
+                    href="/reports"
                     className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                   >
-                    Vouchers
+                    Reports
                   </Link>
                 </li>
                 <li>
                   <Link
-                    href="/manager/products"
+                    href="/servicemanagement"
                     className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                   >
-                    Products
+                    Services
                   </Link>
                 </li>
                 <li>

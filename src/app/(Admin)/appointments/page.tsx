@@ -51,7 +51,7 @@ const AppointmentManagementPage = () => {
       try {
         const response = await getAppointments();
         console.log(response);
-        const appointments = response.map((item: any) => ({
+        const appointments = response.data.map((item: any) => ({
           key: item.appointmentId.toString(),
           appointmentId: item.appointmentId,
           date: moment(item.date).format("DD/MM/YYYY HH:mm"),
