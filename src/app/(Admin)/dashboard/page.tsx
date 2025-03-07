@@ -22,23 +22,25 @@ import {
   CartesianGrid,
 } from "recharts";
 import moment from "moment";
+import { useCircle } from "@/dbUtils/DashboardAPIs/circle";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF4560"];
 
 const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
-  const [topServices, setTopServices] = useState<any[]>([]);
+  const [topservices, setTopServices] = useState<any[]>([]);
   const [recentAppointments, setRecentAppointments] = useState<any[]>([]);
+  const { data: topServices = [] } = useCircle();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         const dashboard = await getDashboardData();
-        const services = await getTopServices(5);
+        const topservices = await getTopServices(5);
         const appointments = await getRecentAppointments(5);
 
         setDashboardData(dashboard);
-        setTopServices(services);
+        setTopServices(topservices);
         setRecentAppointments(appointments);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
@@ -88,7 +90,7 @@ const Dashboard = () => {
           </h2>
           <PieChart width={400} height={300} className="mx-auto">
             <Pie
-              data={topServices}
+              data={topservices}
               dataKey="revenue"
               nameKey="serviceName"
               cx="50%"
@@ -126,7 +128,7 @@ const Dashboard = () => {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="revenue" fill="#0088FE" />
+            <Bar dataKey="bookingCount" fill="#0088FE" />
           </BarChart>
           <p className="text-gray-500 text-center mt-4">
             Top-performing services based on revenue
