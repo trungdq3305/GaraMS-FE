@@ -44,10 +44,10 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                 </li>
                 <li>
                   <Link
-                    href="/reports"
+                    href="/inventorymanagement"
                     className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                   >
-                    Reports
+                    Inventory - Supplier
                   </Link>
                 </li>
                 <li>
