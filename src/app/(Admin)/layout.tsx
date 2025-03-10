@@ -16,14 +16,15 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
+      {/* Sidebar */}{user?.role === 4 && (
       <aside className="w-64 bg-gray-800 text-white flex flex-col shadow-md">
         <div className="h-20 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
-          <h1 className="text-2xl font-bold">GaraMS Manager</h1>
+          <h1 className="text-2xl font-bold">GaraMS Admin</h1>
         </div>
         <nav className="flex-1 p-4">
           <ul className="space-y-4">
-            {user?.role === 4 && (
+            
+              <>
               <li>
                 <Link
                   href="/dashboard"
@@ -32,9 +33,38 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                   Dashboard
                 </Link>
               </li>
-            )}
+              <li>
+                <Link
+                  href="/usermanagement"
+                  className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                >
+                  User Management
+                </Link>
+              </li>
+              </>
+            
 
-            {user?.role === 3 && (
+            
+          </ul>
+        </nav>
+        <button
+          onClick={onLogout}
+          className="m-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+        >
+          Logout
+        </button>
+      </aside>
+      )}
+{user?.role === 3 && (
+      <aside className="w-64 bg-gray-800 text-white flex flex-col shadow-md">
+        <div className="h-20 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
+          <h1 className="text-2xl font-bold">GaraMS Manager</h1>
+        </div>
+        <nav className="flex-1 p-4">
+          <ul className="space-y-4">
+            
+
+            
               <>
                 <li>
                   <Link
@@ -77,7 +107,7 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                   </Link>
                 </li>
               </>
-            )}
+            
           </ul>
         </nav>
         <button
@@ -87,7 +117,7 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
           Logout
         </button>
       </aside>
-
+      )}
       {/* Main content */}
       <main className="flex-1 p-6 overflow-auto">{children}</main>
     </div>
