@@ -1,13 +1,39 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, message, Modal, Form, Input } from "antd";
+import { Button, Input as AntInput, Space, Table, message, Modal, Form, Input, Descriptions, Tag, List, Typography } from "antd";
 import type { InputRef, TableColumnType } from "antd";
-import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined  } from "@ant-design/icons";
+import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import moment from "moment";
-import { getServices, addService, updateService,deleteService } from "@/dbUtils/ManagerAPIs/serviceservice";
+import { getServices, addService, updateService, deleteService } from "@/dbUtils/ManagerAPIs/serviceservice";
+
+const { Title, Text } = Typography;
+
+interface Employee {
+  employeeId: number;
+  fullName?: string;
+  user?: {
+    fullName: string;
+  };
+}
+
+interface Inventory {
+  inventoryId: number;
+  name: string;
+  description: string;
+  price: number;
+  unit: string;
+}
+
+interface Promotion {
+  promotionId: number;
+  promotionName: string;
+  discountPercent: number;
+  startDate: string;
+  endDate: string;
+}
 
 interface ServiceData {
   key: string;
@@ -17,6 +43,17 @@ interface ServiceData {
   totalPrice: number;
   status: boolean;
   createdAt: string;
+  servicePrice?: number;
+  inventoryPrice?: number;
+  promotion?: number;
+  estimatedTime?: number;
+  warrantyPeriod?: number;
+  categoryId?: number;
+  category?: { categoryName?: string };
+  serviceEmployees?: Array<{ employee: Employee }>;
+  serviceInventories?: Array<{ inventory: Inventory }>;
+  servicePromotions?: Array<{ promotion: Promotion }>;
+  updatedAt?: string;
 }
 
 type DataIndex = keyof ServiceData;
@@ -26,11 +63,13 @@ const ServiceManagementPage = () => {
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceData | null>(null);
+  const [detailService, setDetailService] = useState<ServiceData | null>(null);
   const [form] = Form.useForm();
   const [editForm] = Form.useForm();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
   const searchInput = useRef<InputRef>(null);
 
   useEffect(() => {
@@ -49,6 +88,18 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
         totalPrice: item.totalPrice,
         status: item.status,
         createdAt: moment(item.createdAt).format("DD/MM/YYYY HH:mm"),
+        // Store all full service data for detail view
+        servicePrice: item.servicePrice,
+        inventoryPrice: item.inventoryPrice,
+        promotion: item.promotion,
+        estimatedTime: item.estimatedTime,
+        warrantyPeriod: item.warrantyPeriod,
+        categoryId: item.categoryId,
+        category: item.category,
+        serviceEmployees: item.serviceEmployees,
+        serviceInventories: item.serviceInventories,
+        servicePromotions: item.servicePromotions,
+        updatedAt: item.updatedAt ? moment(item.updatedAt).format("DD/MM/YYYY HH:mm") : undefined,
       }));
       setData(services);
     } catch (error) {
@@ -58,6 +109,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
       setLoading(false);
     }
   };
+
   const handleEditClick = (service: ServiceData) => {
     setEditingService(service);
     editForm.setFieldsValue({
@@ -67,6 +119,12 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
     });
     setIsEditModalOpen(true);
   };
+
+  const handleDetailClick = (service: ServiceData) => {
+    setDetailService(service);
+    setIsDetailModalOpen(true);
+  };
+
   const handleEditService = async () => {
     try {
       const values = await editForm.validateFields();
@@ -86,6 +144,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
       message.error("Failed to update service.");
     }
   };
+
   const handleDeleteService = (serviceId: number) => {
     setSelectedServiceId(serviceId);
     setIsDeleteModalOpen(true);
@@ -125,7 +184,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
       </div>
     ),
     filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
-    onFilter: (value, record) => record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase()),
+    onFilter: (value, record) =>  Boolean(record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase())),
   });
 
   const columns: ColumnsType<ServiceData> = [
@@ -142,7 +201,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
         { text: "Inactive", value: false }
       ],
       onFilter: (value, record) => record.status === value,
-      render: (status) => (status ? "Active" : "Inactive") 
+      render: (status) => (status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>) 
     },
     { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
     {
@@ -150,13 +209,16 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
       key: "actions",
       render: (_, record) => (
         <Space>
-        <Button icon={<EditOutlined />} onClick={() => handleEditClick(record)}>
-          Edit
-        </Button>
-        <Button danger onClick={() => handleDeleteService(record.serviceId)}>
-              Delete
-            </Button>
-      </Space>
+          <Button icon={<InfoCircleOutlined />} onClick={() => handleDetailClick(record)}>
+            Detail
+          </Button>
+          <Button icon={<EditOutlined />} onClick={() => handleEditClick(record)}>
+            Edit
+          </Button>
+          <Button danger icon={<DeleteOutlined />} onClick={() => handleDeleteService(record.serviceId)}>
+            Delete
+          </Button>
+        </Space>
       ),
     },
   ];
@@ -165,7 +227,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
     try {
       const values = await form.validateFields();
       await addService({
-        serviceId: 0, // API sẽ tự động tạo ID
+        serviceId: 0, // API will automatically create the ID
         serviceName: values.serviceName,
         price: parseFloat(values.price),
         description: values.description,
@@ -173,7 +235,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
       message.success("Service added successfully!");
       setIsModalOpen(false);
       form.resetFields();
-      fetchServices(); // Reload danh sách dịch vụ
+      fetchServices(); // Reload service list
     } catch (error) {
       console.error("Error adding service:", error);
       message.error("Failed to add service.");
@@ -197,7 +259,7 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
         scroll={{ x: 1000 }}
       />
 
-      {/* Modal thêm dịch vụ */}
+      {/* Add Service Modal */}
       <Modal
         title="Add New Service"
         open={isModalOpen}
@@ -236,7 +298,8 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
           </Form.Item>
         </Form>
       </Modal>
-      {/* Modal chỉnh sửa dịch vụ */}
+
+      {/* Edit Service Modal */}
       <Modal
         title="Edit Service"
         open={isEditModalOpen}
@@ -275,21 +338,121 @@ const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
           </Form.Item>
         </Form>
       </Modal>
+
+      {/* Delete Confirmation Modal */}
       <Modal
-      title="Confirm Delete"
-      open={isDeleteModalOpen}
-      onCancel={() => setIsDeleteModalOpen(false)}
-      footer={[
-        <Button key="cancel" onClick={() => setIsDeleteModalOpen(false)}>
-          Cancel
-        </Button>,
-        <Button key="submit" type="primary" danger onClick={confirmDelete}>
-          Yes, Delete
-        </Button>,
-      ]}
-    >
-      <p>Are you sure you want to delete this service? This action cannot be undone.</p>
-    </Modal>
+        title="Confirm Delete"
+        open={isDeleteModalOpen}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsDeleteModalOpen(false)}>
+            Cancel
+          </Button>,
+          <Button key="submit" type="primary" danger onClick={confirmDelete}>
+            Yes, Delete
+          </Button>,
+        ]}
+      >
+        <p>Are you sure you want to delete this service? This action cannot be undone.</p>
+      </Modal>
+
+      {/* Service Detail Modal */}
+      <Modal
+        title="Service Details"
+        open={isDetailModalOpen}
+        onCancel={() => setIsDetailModalOpen(false)}
+        width={800}
+        footer={[
+          <Button key="close" type="primary" onClick={() => setIsDetailModalOpen(false)}>
+            Close
+          </Button>,
+        ]}
+      >
+        {detailService && (
+          <div className="service-detail-container">
+            <Descriptions bordered column={2}>
+              <Descriptions.Item label="Service ID" span={2}>{detailService.serviceId}</Descriptions.Item>
+              <Descriptions.Item label="Service Name" span={2}>{detailService.serviceName}</Descriptions.Item>
+              <Descriptions.Item label="Description" span={2}>{detailService.description}</Descriptions.Item>
+              <Descriptions.Item label="Service Price">${detailService.servicePrice}</Descriptions.Item>
+              <Descriptions.Item label="Inventory Price">${detailService.inventoryPrice}</Descriptions.Item>
+              <Descriptions.Item label="Promotion Discount">{detailService.promotion}%</Descriptions.Item>
+              <Descriptions.Item label="Total Price">${detailService.totalPrice}</Descriptions.Item>
+              <Descriptions.Item label="Estimated Time">{detailService.estimatedTime} minutes</Descriptions.Item>
+              <Descriptions.Item label="Warranty Period">{detailService.warrantyPeriod} days</Descriptions.Item>
+              <Descriptions.Item label="Status">
+                {detailService.status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>}
+              </Descriptions.Item>
+              <Descriptions.Item label="Category">{detailService.category?.categoryName || 'N/A'}</Descriptions.Item>
+              <Descriptions.Item label="Created At">{detailService.createdAt}</Descriptions.Item>
+              <Descriptions.Item label="Updated At">{detailService.updatedAt || 'N/A'}</Descriptions.Item>
+            </Descriptions>
+
+            <div className="mt-4">
+              <Title level={5}>Employees</Title>
+              {detailService.serviceEmployees && detailService.serviceEmployees.length > 0 ? (
+                <List
+                  bordered
+                  dataSource={detailService.serviceEmployees}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <Text>
+                        ID: {item.employee.employeeId} - 
+                        Name: {item.employee.user?.fullName || item.employee.fullName || 'N/A'}
+                      </Text>
+                    </List.Item>
+                  )}
+                />
+              ) : (
+                <Text>No employees assigned</Text>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <Title level={5}>Inventories</Title>
+              {detailService.serviceInventories && detailService.serviceInventories.length > 0 ? (
+                <List
+                  bordered
+                  dataSource={detailService.serviceInventories}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <div>
+                        <div><Text strong>Name:</Text> {item.inventory.name}</div>
+                        <div><Text strong>Description:</Text> {item.inventory.description}</div>
+                        <div><Text strong>Price:</Text> ${item.inventory.price}</div>
+                        <div><Text strong>Unit:</Text> {item.inventory.unit}</div>
+                      </div>
+                    </List.Item>
+                  )}
+                />
+              ) : (
+                <Text>No inventories assigned</Text>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <Title level={5}>Promotions</Title>
+              {detailService.servicePromotions && detailService.servicePromotions.length > 0 ? (
+                <List
+                  bordered
+                  dataSource={detailService.servicePromotions}
+                  renderItem={(item) => (
+                    <List.Item>
+                      <div>
+                        <div><Text strong>Name:</Text> {item.promotion.promotionName}</div>
+                        <div><Text strong>Discount:</Text> {item.promotion.discountPercent}%</div>
+                        <div><Text strong>Valid Period:</Text> {moment(item.promotion.startDate).format("DD/MM/YYYY")} - {moment(item.promotion.endDate).format("DD/MM/YYYY")}</div>
+                      </div>
+                    </List.Item>
+                  )}
+                />
+              ) : (
+                <Text>No active promotions</Text>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };
