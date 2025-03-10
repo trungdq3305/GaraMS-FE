@@ -23,14 +23,16 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
         </div>
         <nav className="flex-1 p-4">
           <ul className="space-y-4">
-            <li>
-              <Link
-                href="/dashboard"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Dashboard
-              </Link>
-            </li>
+            {user?.role === 4 && (
+              <li>
+                <Link
+                  href="/dashboard"
+                  className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                >
+                  Dashboard
+                </Link>
+              </li>
+            )}
 
             {user?.role === 3 && (
               <>
@@ -66,17 +68,16 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                     Promotion
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/employeemanagement"
+                    className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                  >
+                    Employee
+                  </Link>
+                </li>
               </>
             )}
-
-            <li>
-              <Link
-                href="/usermanagement"
-                className="block px-4 py-2 rounded-lg hover:bg-gray-700"
-              >
-                Settings
-              </Link>
-            </li>
           </ul>
         </nav>
         <button

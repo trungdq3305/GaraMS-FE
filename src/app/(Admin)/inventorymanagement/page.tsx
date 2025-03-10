@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, message, Modal, Form, Input, Select, Divider, Tabs } from "antd";
+import { Button, Input as AntInput, Space, Table, message, Modal, Form, Input, Select, Divider, Tabs, Tag } from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -73,7 +73,7 @@ const InventoryAndSupplierManagementPage = () => {
             console.log(response);
             const inventories = response.data.map((item: any) => ({
                 key: item.name.toString(),
-                //inventoryId: item.inventoryId,
+                inventoryId: item.inventoryId,
                 name: item.name,
                 description: item.description,
                 unit: item.unit,
@@ -176,12 +176,17 @@ const InventoryAndSupplierManagementPage = () => {
             dataIndex: "status",
             key: "status",
             filters: [
-                { text: "Available", value: true },
-                { text: "Out of Stock", value: false }
+              { text: "Available", value: true },
+              { text: "Out of Stock", value: false }
             ],
             onFilter: (value, record) => record.status === value,
-            render: (status) => (status ? "Available" : "Out of Stock")
-        },
+            render: (status) => {
+              const color = status ? "green" : "red";
+              const text = status ? "Available" : "Out of Stock";
+              return <Tag color={color}>{text}</Tag>;
+            }
+          },
+          
         { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
         {
             title: "Actions",
