@@ -60,10 +60,10 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                 </li>
                 <li>
                   <Link
-                    href="/reports"
+                    href="/promotionmanagement"
                     className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                   >
-                    Reports
+                    Promotion
                   </Link>
                 </li>
               </>
