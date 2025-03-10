@@ -70,9 +70,10 @@ const InventoryAndSupplierManagementPage = () => {
         setInventoryLoading(true);
         try {
             const response = await getInventories();
+            console.log(response);
             const inventories = response.data.map((item: any) => ({
-                key: item.inventoryId.toString(),
-                inventoryId: item.inventoryId,
+                key: item.name.toString(),
+                //inventoryId: item.inventoryId,
                 name: item.name,
                 description: item.description,
                 unit: item.unit,
