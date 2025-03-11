@@ -2,9 +2,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, Modal, message,Tag } from "antd";
+import { Button, Input as AntInput, Space, Table, Modal, message, Tag, Descriptions, Avatar, Divider } from "antd";
 import type { InputRef, TableColumnType } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { SearchOutlined, UserOutlined, EyeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
@@ -19,6 +19,16 @@ interface AppointmentService {
   totalPrice: number;
 }
 
+interface CustomerInfo {
+  customerId: number;
+  fullName: string;
+  phoneNumber: string;
+  email: string;
+  address: string;
+  gender: string;
+  note: string;
+}
+
 interface DataType {
   key: string;
   appointmentId: number;
@@ -27,6 +37,7 @@ interface DataType {
   vehicle: string;
   note: string;
   services: AppointmentService[];
+  customerInfo: CustomerInfo;
 }
 
 type DataIndex = keyof DataType;
@@ -43,6 +54,8 @@ const AppointmentManagementPage = () => {
   const [reason, setReason] = useState("");
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [detailModalVisible, setDetailModalVisible] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<DataType | null>(null);
 
   const searchInput = useRef<InputRef>(null);
 
@@ -65,6 +78,15 @@ const AppointmentManagementPage = () => {
             serviceName: s.service?.serviceName || "Unknown Service",
             totalPrice: s.service?.totalPrice || 0,
           })),
+          customerInfo: item.vehicle?.customer ? {
+            customerId: item.vehicle.customer.customerId,
+            fullName: item.vehicle.customer.user.fullName,
+            phoneNumber: item.vehicle.customer.user.phoneNumber,
+            email: item.vehicle.customer.user.email,
+            address: item.vehicle.customer.user.address,
+            gender: item.vehicle.customer.gender,
+            note: item.vehicle.customer.note
+          } : null,
         }));
         setData(appointments);
       } catch (error) {
@@ -143,6 +165,11 @@ const AppointmentManagementPage = () => {
       console.error("Error rejecting appointment:", error);
       message.error(`Không thể Reject Appointment #${selectedAppointmentId}.`);
     }
+  };
+
+  const handleViewDetail = (record: DataType) => {
+    setSelectedAppointment(record);
+    setDetailModalVisible(true);
   };
 
   const getColumnSearchProps = (
@@ -251,30 +278,28 @@ const AppointmentManagementPage = () => {
     },
     { title: "Note", dataIndex: "note", key: "note" },
     {
-      title: "Services",
-      dataIndex: "services",
-      key: "services",
-      render: (services: AppointmentService[]) =>
-        services
-          .map((s) => `${s.serviceName} (${s.totalPrice} VND)`)
-          .join(", "),
-    },
-    {
       title: "Action",
       key: "action",
       render: (_, record) => (
         <Space>
           <Button
-            icon={<EditOutlined />} 
-            
+            icon={<EyeOutlined />}
+            type="default"
+            style={{ border: "1px solid #d9d9d9" }}
+            onClick={() => handleViewDetail(record)}
+          >
+            Details
+          </Button>
+          <Button
+            icon={<EditOutlined />}
             style={{ border: "1px solid #d9d9d9" }}
             onClick={() => handleAccept(record.appointmentId)}
           >
             Accept
           </Button>
           <Button
-            icon={<DeleteOutlined />} 
-            danger 
+            icon={<DeleteOutlined />}
+            danger
             onClick={() => {
               setRejectModalVisible(true);
               setSelectedAppointmentId(record.appointmentId);
@@ -297,6 +322,7 @@ const AppointmentManagementPage = () => {
         pagination={{ pageSize: 10 }}
         scroll={{ x: 1000 }}
       />
+
       {/* Modal Reject */}
       <Modal
         title="Reject Appointment"
@@ -331,6 +357,88 @@ const AppointmentManagementPage = () => {
         ]}
       >
         <p>{successMessage}</p>
+      </Modal>
+
+      {/* Detail Modal (Services + Customer Info) */}
+      <Modal
+        title={`Appointment Details #${selectedAppointment?.appointmentId}`}
+        open={detailModalVisible}
+        onCancel={() => setDetailModalVisible(false)}
+        footer={[
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => setDetailModalVisible(false)}
+          >
+            Close
+          </Button>,
+        ]}
+        width={700}
+      >
+        {selectedAppointment && (
+          <div className="appointment-detail-container">
+            {/* Appointment Info */}
+            <Descriptions title="Appointment Information" bordered column={1}>
+              <Descriptions.Item label="ID">{selectedAppointment.appointmentId}</Descriptions.Item>
+              <Descriptions.Item label="Booked Date">{selectedAppointment.date}</Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Tag
+                  color={
+                    selectedAppointment.status === "Accept" ? "green" :
+                      selectedAppointment.status === "Reject" ? "red" : "black"
+                  }
+                >
+                  {selectedAppointment.status}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Vehicle">{selectedAppointment.vehicle}</Descriptions.Item>
+              <Descriptions.Item label="Note">{selectedAppointment.note || "N/A"}</Descriptions.Item>
+            </Descriptions>
+
+            {/* Services */}
+            <Divider />
+            <h3 className="text-lg font-semibold mb-3">Services</h3>
+            <Table
+              dataSource={selectedAppointment.services.map((service, index) => ({
+                key: index,
+                ...service
+              }))}
+              columns={[
+                { title: 'Service Name', dataIndex: 'serviceName', key: 'serviceName' },
+                {
+                  title: 'Price',
+                  dataIndex: 'totalPrice',
+                  key: 'totalPrice',
+                  render: (price) => `${price.toLocaleString()} VND`
+                }
+              ]}
+              pagination={false}
+              size="small"
+            />
+
+            {/* Customer Info */}
+            {selectedAppointment.customerInfo && (
+              <>
+                <Divider />
+                <h3 className="text-lg font-semibold mb-3">Customer Information</h3>
+                <div className="flex items-center mb-4">
+                  <Avatar size={64} icon={<UserOutlined />} className="mr-4" />
+                  <div>
+                    <h2 className="text-lg font-semibold">{selectedAppointment.customerInfo.fullName}</h2>
+                    <p>Customer ID: {selectedAppointment.customerInfo.customerId}</p>
+                  </div>
+                </div>
+                <Descriptions bordered column={1}>
+                  <Descriptions.Item label="Phone Number">{selectedAppointment.customerInfo.phoneNumber}</Descriptions.Item>
+                  <Descriptions.Item label="Email">{selectedAppointment.customerInfo.email}</Descriptions.Item>
+                  <Descriptions.Item label="Address">{selectedAppointment.customerInfo.address}</Descriptions.Item>
+                  <Descriptions.Item label="Gender">{selectedAppointment.customerInfo.gender}</Descriptions.Item>
+                  <Descriptions.Item label="Customer Note">{selectedAppointment.customerInfo.note || "N/A"}</Descriptions.Item>
+                </Descriptions>
+              </>
+            )}
+          </div>
+        )}
       </Modal>
     </div>
   );

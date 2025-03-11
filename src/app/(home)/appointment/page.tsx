@@ -7,7 +7,7 @@ import axiosInstance from "../../../dbUtils/axios"; // Đường dẫn tới fil
 interface Service {
     id: number;
     name: string;
-    price: number;
+    totalPrice: number;
     description: string;
 }
 
@@ -63,7 +63,7 @@ export default function AppointmentPage() {
                 const services = response.data.data.map((service: any, index: number) => ({
                     id: service.serviceId || index + 1, // Ensure a unique id
                     name: service.serviceName,
-                    price: service.price,
+                    totalPrice: service.totalPrice,
                     description: service.description,
                 }));
                 setServicesList(services);
@@ -114,7 +114,7 @@ export default function AppointmentPage() {
         window.location.reload();
     };
 
-    const totalPrice = formData.services.reduce((sum, service) => sum + service.price, 0);
+    const totalPrice = formData.services.reduce((sum, service) => sum + service.totalPrice, 0);
 
     if (loading) return <div>Loading services...</div>;
     if (error) return <div className="text-red-600">{error}</div>;
@@ -203,7 +203,7 @@ export default function AppointmentPage() {
                                     onChange={() => handleServiceToggle(service)}
                                 />
                                 <span>
-                                    {service.name} - ${service.price}
+                                    {service.name} - ${service.totalPrice}
                                 </span>
                             </motion.label>
                         ))}
