@@ -23,6 +23,7 @@ import {
 } from "recharts";
 import moment from "moment";
 import { useCircle } from "@/dbUtils/DashboardAPIs/circle";
+import { useDashboard } from "@/dbUtils/DashboardAPIs/dashboard";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#FF4560"];
 
@@ -30,6 +31,7 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [topservices, setTopServices] = useState<any[]>([]);
   const [recentAppointments, setRecentAppointments] = useState<any[]>([]);
+  const { data: dashboard } = useDashboard();
   const { data: topServices = [] } = useCircle();
 
   useEffect(() => {
@@ -65,18 +67,18 @@ const Dashboard = () => {
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h2 className="font-bold text-lg">Total Revenue</h2>
           <p className="text-2xl">
-            ${dashboardData.totalRevenue.toLocaleString()}
+            ${dashboard?.totalRevenue.toLocaleString()}
           </p>
           <p className="text-gray-500">Overall revenue generated</p>
         </div>
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h2 className="font-bold text-lg">Total Services</h2>
-          <p className="text-2xl">{dashboardData.totalServices}</p>
+          <p className="text-2xl">{dashboard?.totalServices}</p>
           <p className="text-gray-500">Number of services offered</p>
         </div>
         <div className="bg-white shadow rounded-lg p-4 text-center">
           <h2 className="font-bold text-lg">Total Appointments</h2>
-          <p className="text-2xl">{dashboardData.totalAppointments}</p>
+          <p className="text-2xl">{dashboard?.totalAppointments}</p>
           <p className="text-gray-500">Total appointments booked</p>
         </div>
       </div>
@@ -99,12 +101,13 @@ const Dashboard = () => {
               fill="#8884d8"
               label
             >
-              {topServices.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
+              {Array.isArray(topservices) &&
+                topservices.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
             </Pie>
             <Tooltip />
           </PieChart>
@@ -119,17 +122,23 @@ const Dashboard = () => {
             Top Services by Revenue
           </h2>
           <BarChart
-            width={500}
-            height={300}
+            width={600}
+            height={400}
             data={topServices}
-            className="mx-auto"
+            margin={{ top: 20, right: 30, left: 20, bottom: 30 }}
           >
-            <XAxis dataKey="serviceName" />
+            <XAxis
+              dataKey="serviceName"
+              interval={0}
+              angle={-30}
+              textAnchor="end"
+            />
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="bookingCount" fill="#0088FE" />
+            <Bar dataKey="bookingCount" fill="#0088FE" barSize={50} />
           </BarChart>
+
           <p className="text-gray-500 text-center mt-4">
             Top-performing services based on revenue
           </p>

@@ -23,3 +23,7 @@ body {
 .nextjs-toast.nextjs-toast-errors-parent.nextjs-error-with-static {
   display: none;
 }
+
+.recharts-surface {
+  width: 500px !important;
+}
