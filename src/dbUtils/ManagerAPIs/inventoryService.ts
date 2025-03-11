@@ -31,3 +31,11 @@ export const updateInventory = async (id: number, serviceData: {
 export const deleteInventory = async (id: number) => {
     await axiosInstance.delete(`inventory/inventory/${id}`);
 };
+export const assignInventoryToSupplier = async (inventoryId: number, supplierId: number) => {
+    const response = await axiosInstance.post(`/supplier/assign-inventory-to-supplier`, {
+        inventoryId,
+        supplierId
+    });
+    return response.data;
+};
+
