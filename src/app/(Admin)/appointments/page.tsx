@@ -2,11 +2,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, Modal, message } from "antd";
+import { Button, Input as AntInput, Space, Table, Modal, message,Tag } from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import moment from "moment";
 import {
   getAppointments,
@@ -224,6 +225,23 @@ const AppointmentManagementPage = () => {
       dataIndex: "status",
       key: "status",
       ...getColumnSearchProps("status"),
+      render: (status) => {
+        let color = "";
+        switch (status) {
+          case "Accept":
+            color = "green";
+            break;
+          case "Pending":
+            color = "black";
+            break;
+          case "Reject":
+            color = "red";
+            break;
+          default:
+            color = "gray";
+        }
+        return <Tag color={color}>{status}</Tag>;
+      },
     },
     {
       title: "Vehicle",
@@ -247,14 +265,16 @@ const AppointmentManagementPage = () => {
       render: (_, record) => (
         <Space>
           <Button
-            type="primary"
+            icon={<EditOutlined />} 
+            
+            style={{ border: "1px solid #d9d9d9" }}
             onClick={() => handleAccept(record.appointmentId)}
           >
             Accept
           </Button>
           <Button
-            type="primary"
-            danger
+            icon={<DeleteOutlined />} 
+            danger 
             onClick={() => {
               setRejectModalVisible(true);
               setSelectedAppointmentId(record.appointmentId);
