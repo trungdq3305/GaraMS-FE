@@ -5,6 +5,11 @@ export const getServices = async () => {
   return response.data;
 };
 
+export const getServiceById = async (serviceId: number) => {
+  const response = await axiosInstance.get(`service/service/${serviceId}`);
+  return response.data;
+};
+
 export const addService = async (serviceData: {
   serviceId: number;
   serviceName: string;
@@ -16,13 +21,19 @@ export const addService = async (serviceData: {
   return response.data;
 };
 
-export const updateService = async (serviceId: number, serviceData: {
-  serviceId: number;
-  serviceName: string;
-  price: number;
-  description: string;
-}) => {
-  const response = await axiosInstance.put(`service/service/${serviceId}`, serviceData);
+export const updateService = async (
+  serviceId: number,
+  serviceData: {
+    serviceId: number;
+    serviceName: string;
+    price: number;
+    description: string;
+  }
+) => {
+  const response = await axiosInstance.put(
+    `service/service/${serviceId}`,
+    serviceData
+  );
   return response.data;
 };
 
