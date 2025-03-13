@@ -148,6 +148,25 @@ const AppointmentManagementPage = () => {
       message.error(`Không thể Accept Appointment #${appointmentId}.`);
     }
   };
+  const handleComplete = async (appointmentId: number) => {
+    try {
+      await updateAppointmentStatus(appointmentId, "Complete", "1");
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.appointmentId === appointmentId
+            ? { ...item, status: "Complete" }
+            : item
+        )
+      );
+      setSuccessMessage(
+        `Appointment #${appointmentId} đã được Complete thành công.`
+      );
+      setSuccessModalVisible(true); // Hiển thị Modal
+    } catch (error) {
+      console.error("Error accepting appointment:", error);
+      message.error(`Không thể Complete Appointment #${appointmentId}.`);
+    }
+  };
 
   const handleReject = async () => {
     if (!reason.trim()) {
@@ -304,6 +323,7 @@ const AppointmentManagementPage = () => {
           >
             Details
           </Button>
+          {(record.status === "Pending" || record.status === "Reject" ) && ( 
           <Button
             icon={<EditOutlined />}
             style={{ border: "1px solid #d9d9d9" }}
@@ -311,6 +331,8 @@ const AppointmentManagementPage = () => {
           >
             Accept
           </Button>
+          )}
+          {(record.status === "Pending" || record.status === "Accept" ) && ( 
           <Button
             icon={<DeleteOutlined />}
             danger
@@ -321,6 +343,16 @@ const AppointmentManagementPage = () => {
           >
             Reject
           </Button>
+          )}
+          {record.status === "Paid" && ( 
+        <Button
+          icon={<EditOutlined />}
+          style={{ border: "1px solid #d9d9d9" }}
+          onClick={() => handleComplete(record.appointmentId)}
+        >
+          Complete
+        </Button>
+      )}
         </Space>
       ),
     },
