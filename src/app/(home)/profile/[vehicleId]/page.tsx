@@ -4,10 +4,10 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useAppointment } from "@/dbUtils/appointmentAPIs/getAppointment";
 import Link from "next/link";
+import axios from "axios";
 
 const AppointmentVehicle = () => {
   const { vehicleId } = useParams();
-
   const { data: appointments, isLoading, error } = useAppointment();
 
   if (isLoading) {
@@ -27,6 +27,27 @@ const AppointmentVehicle = () => {
   );
 
   const filteredAppointments = vehicleData?.appointments ?? [];
+
+  const handlePayment = async (appointmentId: number) => {
+    try {
+      const iidResponse = await axios.get(
+        `https://localhost:7102/api/invoices/iid-by-aid?aid=${appointmentId}`
+      );
+      const iid = iidResponse.data;
+
+      if (iid) {
+        const paymentResponse = await axios.post(
+          `https://localhost:7102/api/invoices/pay-single-invoice/${iid}`
+        );
+        window.location.href = paymentResponse.data.url;
+      } else {
+        alert("Không tìm thấy hóa đơn cho cuộc hẹn này.");
+      }
+    } catch (error) {
+      console.error("Lỗi khi xử lý thanh toán:", error);
+      alert("Có lỗi xảy ra khi thanh toán.");
+    }
+  };
 
   return (
     <div className="p-6">
@@ -81,6 +102,16 @@ const AppointmentVehicle = () => {
                   </li>
                 ))}
               </ul>
+
+              {/* Nút thanh toán nếu trạng thái là "Accept" */}
+              {appointment.status === "Accept" && (
+                <button
+                  onClick={() => handlePayment(appointment.appointmentId)}
+                  className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Thanh toán
+                </button>
+              )}
             </div>
           ))}
         </div>
