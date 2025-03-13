@@ -3,6 +3,8 @@
 import { useParams, useRouter } from "next/navigation";
 import { usePromotionDetail } from "@/dbUtils/promotionAPIs/promotionDetail";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { getServices } from "@/dbUtils/ManagerAPIs/serviceservice";
 
 export default function PromotionDetailPage() {
   const { promotionId } = useParams(); // Get ID from URL
@@ -13,9 +15,18 @@ export default function PromotionDetailPage() {
     error,
   } = usePromotionDetail(Number(promotionId));
 
-  if (isLoading)
+  const {
+    data: services,
+    isLoading: isServicesLoading,
+    error: servicesError,
+  } = useQuery({
+    queryKey: ["services"],
+    queryFn: getServices,
+  });
+
+  if (isLoading || isServicesLoading)
     return <div className="text-center text-gray-500">Loading...</div>;
-  if (error)
+  if (error || servicesError)
     return (
       <div className="text-red-600 text-center">Failed to load promotion.</div>
     );
@@ -47,12 +58,18 @@ export default function PromotionDetailPage() {
 
         <h2 className="text-xl font-semibold mt-4">📋 Services Included:</h2>
         <ul className="list-disc list-inside text-gray-700 mt-2">
-          {promotion?.servicePromotions.map((sp) => (
-            <li key={sp.servicePromotionId}>
-              {/* {sp.service?.serviceName} -
-              <span className="text-blue-500"> ${sp.service?.totalPrice}</span> */}
-            </li>
-          ))}
+          {promotion?.servicePromotions.map((sp) => {
+            const service = services?.data?.find(
+              (s: { serviceId: number }) => s.serviceId === sp.serviceId
+            );
+            return (
+              <li key={sp.servicePromotionId}>
+                {service
+                  ? `${service.serviceName} - $${service.servicePrice}`
+                  : "Service not found"}
+              </li>
+            );
+          })}
         </ul>
 
         <button

@@ -27,7 +27,7 @@ const ReportPage = () => {
     try {
       const reportData = {
         ...formData,
-        customerId: 1, // Giá trị này có thể lấy từ context hoặc store nếu cần
+        customerId: 1,
       };
 
       const response = await createReport(reportData);
