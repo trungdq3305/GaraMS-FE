@@ -11,31 +11,49 @@ const images = [
 ];
 
 const features = [
-  { title: "Customer Management", desc: "Track customer details and history.", icon: Users },
-  { title: "Smart Appointments", desc: "Create and manage bookings.", icon: Clock },
-  { title: "Billing & Payments", desc: "Generate invoices with ease.", icon: Star },
-  { title: "Inventory Tracking", desc: "Monitor parts efficiently.", icon: Star },
+  {
+    title: "Customer Management",
+    desc: "Track customer details and history.",
+    icon: Users,
+  },
+  {
+    title: "Smart Appointments",
+    desc: "Create and manage bookings.",
+    icon: Clock,
+  },
+  {
+    title: "Billing & Payments",
+    desc: "Generate invoices with ease.",
+    icon: Star,
+  },
+  {
+    title: "Inventory Tracking",
+    desc: "Monitor parts efficiently.",
+    icon: Star,
+  },
 ];
 
 const testimonials = [
   {
     name: "John Smith",
     role: "Business Owner",
-    content: "Best garage management system I've ever used. Simplified our entire workflow.",
-    rating: 5
+    content:
+      "Best garage management system I've ever used. Simplified our entire workflow.",
+    rating: 5,
   },
   {
     name: "Sarah Johnson",
     role: "Service Manager",
-    content: "The customer tracking features are incredible. Highly recommended!",
-    rating: 5
+    content:
+      "The customer tracking features are incredible. Highly recommended!",
+    rating: 5,
   },
   {
     name: "Mike Williams",
     role: "Auto Shop Owner",
     content: "Increased our efficiency by 50%. Worth every penny.",
-    rating: 5
-  }
+    rating: 5,
+  },
 ];
 
 export default function HomePage() {
@@ -45,12 +63,12 @@ export default function HomePage() {
   const [ctaVisible, setCtaVisible] = useState(false);
   const [bookingFormVisible, setBookingFormVisible] = useState(false);
   const [quickStatsVisible, setQuickStatsVisible] = useState(false);
-  
+
   useEffect(() => {
     const handleScroll = () => {
-      const features = document.getElementById('features');
-      const testimonials = document.getElementById('testimonials');
-      const cta = document.getElementById('cta');
+      const features = document.getElementById("features");
+      const testimonials = document.getElementById("testimonials");
+      const cta = document.getElementById("cta");
 
       if (features) {
         const rect = features.getBoundingClientRect();
@@ -68,9 +86,9 @@ export default function HomePage() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
     handleScroll(); // Initial check
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   const scrollToStats = () => {
     setQuickStatsVisible(!quickStatsVisible);
@@ -78,7 +96,10 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-100">
       {/* Hero Section */}
-      <section id="hero" className="relative min-h-screen flex items-center justify-center px-4">
+      <section
+        id="hero"
+        className="relative min-h-screen flex items-center justify-center px-4"
+      >
         <div className="absolute inset-0 w-full h-full">
           {images.map((img, i) => (
             <motion.div
@@ -120,10 +141,16 @@ export default function HomePage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.6 }}
           >
-            <a href="/appointment" className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25">
+            <a
+              href="/appointment"
+              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
+            >
               Book an Appointment Now
             </a>
-            <a href="/contact" className="inline-block bg-gray-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 transition-all duration-300 border border-gray-700 hover:border-gray-600">
+            <a
+              href="/contact"
+              className="inline-block bg-gray-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 transition-all duration-300 border border-gray-700 hover:border-gray-600"
+            >
               Contact Us
             </a>
           </motion.div>
@@ -142,7 +169,10 @@ export default function HomePage() {
       <section id="features" className="py-20 px-4">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: featuresVisible ? 1 : 0, y: featuresVisible ? 0 : 50 }}
+          animate={{
+            opacity: featuresVisible ? 1 : 0,
+            y: featuresVisible ? 0 : 50,
+          }}
           transition={{ duration: 0.8 }}
           className="max-w-7xl mx-auto"
         >
@@ -154,7 +184,10 @@ export default function HomePage() {
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: featuresVisible ? 1 : 0, scale: featuresVisible ? 1 : 0.9 }}
+                animate={{
+                  opacity: featuresVisible ? 1 : 0,
+                  scale: featuresVisible ? 1 : 0.9,
+                }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
                 className="bg-gray-800 p-6 rounded-xl hover:bg-gray-700 transition-all duration-300 border border-gray-700 hover:border-gray-600"
               >
@@ -171,7 +204,10 @@ export default function HomePage() {
       <section id="testimonials" className="py-20 px-4 bg-gray-800/50">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: testimonialsVisible ? 1 : 0, y: testimonialsVisible ? 0 : 50 }}
+          animate={{
+            opacity: testimonialsVisible ? 1 : 0,
+            y: testimonialsVisible ? 0 : 50,
+          }}
           transition={{ duration: 0.8 }}
           className="max-w-7xl mx-auto"
         >
@@ -183,13 +219,19 @@ export default function HomePage() {
               <motion.div
                 key={idx}
                 initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: testimonialsVisible ? 1 : 0, scale: testimonialsVisible ? 1 : 0.9 }}
+                animate={{
+                  opacity: testimonialsVisible ? 1 : 0,
+                  scale: testimonialsVisible ? 1 : 0.9,
+                }}
                 transition={{ duration: 0.6, delay: idx * 0.1 }}
                 className="bg-gray-800 p-6 rounded-xl border border-gray-700 hover:border-gray-600 transition-all duration-300"
               >
                 <div className="flex items-center mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                    <Star
+                      key={i}
+                      className="w-5 h-5 text-yellow-400 fill-current"
+                    />
                   ))}
                 </div>
                 <p className="text-gray-300 mb-4">{testimonial.content}</p>
@@ -215,13 +257,20 @@ export default function HomePage() {
             Ready to Transform Your Garage?
           </h2>
           <p className="text-xl text-gray-300 mb-12">
-            Join thousands of successful garage owners who have already upgraded their business
+            Join thousands of successful garage owners who have already upgraded
+            their business
           </p>
           <div className="space-x-4">
-            <a href="/register" className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25">
+            <a
+              href="/register"
+              className="inline-block bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-4 rounded-lg text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25"
+            >
               Start Free Trial
             </a>
-            <a href="tel:+1234567890" className="inline-flex items-center bg-gray-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 transition-all duration-300 border border-gray-700 hover:border-gray-600">
+            <a
+              href="tel:+1234567890"
+              className="inline-flex items-center bg-gray-800 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 transition-all duration-300 border border-gray-700 hover:border-gray-600"
+            >
               <Clock className="w-5 h-5 mr-2" />
               Call Us
             </a>
