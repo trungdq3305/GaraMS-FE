@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { createReport } from "@/dbUtils/ManagerAPIs/reportservice";
 
 const ReportPage = () => {
   const [formData, setFormData] = useState({
@@ -8,6 +9,8 @@ const ReportPage = () => {
     title: "",
     description: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -16,12 +19,30 @@ const ReportPage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
 
-    console.log("Data report", formData);
+    try {
+      const reportData = {
+        ...formData,
+        customerId: 1, // Giá trị này có thể lấy từ context hoặc store nếu cần
+      };
 
-    setFormData({ problem: "", title: "", description: "" });
+      const response = await createReport(reportData);
+      if (response.isSuccess) {
+        setMessage("Report created successfully!");
+        setFormData({ problem: "", title: "", description: "" });
+      } else {
+        setMessage("Failed to create report.");
+      }
+    } catch (error) {
+      setMessage("Error creating report.");
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -64,10 +85,14 @@ const ReportPage = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 transition disabled:bg-gray-400"
+          disabled={loading}
         >
-          Send report
+          {loading ? "Sending..." : "Send Report"}
         </button>
+        {message && (
+          <p className="text-center mt-4 text-green-600">{message}</p>
+        )}
       </form>
     </div>
   );
