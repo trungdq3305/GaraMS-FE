@@ -46,3 +46,7 @@ export const getAppointments = async (): Promise<AppointmentResponse> => {
     throw error; // Let the component handle the error
   }
 };
+export const getAppointmentsByCustomer = async () => {
+  const response = await axiosInstance.get("appointments/viewvehiclebylogin");
+  return response.data;
+};
