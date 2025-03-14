@@ -3,12 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Input as AntInput, Space, Table, message, Modal, Form, Input, Select, Divider, Tabs, Tag } from "antd";
 import type { InputRef, TableColumnType } from "antd";
-import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, LinkOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import moment from "moment";
 import { getInventories, addInventory, updateInventory, deleteInventory } from "@/dbUtils/ManagerAPIs/inventoryService";
-import { getSuppliers, addSupplier, updateSupplier, deleteSupplier } from "@/dbUtils/ManagerAPIs/supplierservice";
+import {
+    getSuppliers,
+    addSupplier,
+    updateSupplier,
+    deleteSupplier,
+    assignInventoryToSupplier,
+    assignInventoryToService
+} from "@/dbUtils/ManagerAPIs/supplierservice";
+import axiosInstance from "@/dbUtils/axios";
 
 // Inventory interfaces and types
 interface InventoryData {
@@ -30,6 +38,12 @@ interface SupplierData {
     phone: string;
     email: string;
     createdAt: string;
+}
+
+// Service interface
+interface ServiceData {
+    id: number;
+    name: string;
 }
 
 type InventoryDataIndex = keyof InventoryData;
@@ -60,9 +74,20 @@ const InventoryAndSupplierManagementPage = () => {
     const [selectedSupplierId, setSelectedSupplierId] = useState<number | null>(null);
     const supplierSearchInput = useRef<InputRef>(null);
     const [activeTab, setActiveTab] = useState("inventory");
+
+    // Service state variables
+    const [servicesList, setServicesList] = useState<ServiceData[]>([]);
+
+    // Assign inventory states
+    const [isAssignServiceModalOpen, setIsAssignServiceModalOpen] = useState(false);
+    const [isAssignSupplierModalOpen, setIsAssignSupplierModalOpen] = useState(false);
+    const [assignForm] = Form.useForm();
+    const [selectedInventoryForAssign, setSelectedInventoryForAssign] = useState<InventoryData | null>(null);
+
     useEffect(() => {
         fetchInventories();
         fetchSuppliers();
+        fetchServices();
     }, []);
 
     // Inventory methods
@@ -176,17 +201,16 @@ const InventoryAndSupplierManagementPage = () => {
             dataIndex: "status",
             key: "status",
             filters: [
-              { text: "Available", value: true },
-              { text: "Out of Stock", value: false }
+                { text: "Available", value: true },
+                { text: "Out of Stock", value: false }
             ],
             onFilter: (value, record) => record.status === value,
             render: (status) => {
-              const color = status ? "green" : "red";
-              const text = status ? "Available" : "Out of Stock";
-              return <Tag color={color}>{text}</Tag>;
+                const color = status ? "green" : "red";
+                const text = status ? "Available" : "Out of Stock";
+                return <Tag color={color}>{text}</Tag>;
             }
-          },
-          
+        },
         { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
         {
             title: "Actions",
@@ -202,6 +226,27 @@ const InventoryAndSupplierManagementPage = () => {
                 </Space>
             ),
         },
+        {
+            title: "Assign",
+            key: "actions",
+            render: (_, record) => (
+                <Space>
+                    <Button
+                        icon={<PlusOutlined />}
+                        onClick={() => handleAssignServiceClick(record)}
+                    >
+                        Service
+                    </Button>
+                    <Button
+                        icon={<PlusOutlined />}
+                        onClick={() => handleAssignSupplierClick(record)}
+                    >
+                        Supplier
+                    </Button>
+                </Space>
+            ),
+        },
+
     ];
 
     const handleAddInventory = async () => {
@@ -221,6 +266,46 @@ const InventoryAndSupplierManagementPage = () => {
         } catch (error) {
             console.error("Error adding inventory item:", error);
             message.error("Failed to add inventory item.");
+        }
+    };
+
+    // Service methods
+    const fetchServices = async () => {
+        try {
+            const response = await axiosInstance.get("service/services");
+            const services = response.data.data.map((service: any) => ({
+                id: service.serviceId,
+                name: service.serviceName,
+            }));
+            setServicesList(services);
+        } catch (err) {
+            message.error("Failed to load services.");
+            console.error(err);
+        }
+    };
+
+    // Handle assigning inventory to service
+    const handleAssignServiceClick = (inventory: InventoryData) => {
+        setSelectedInventoryForAssign(inventory);
+        assignForm.resetFields();
+        setIsAssignServiceModalOpen(true);
+    };
+
+    const handleAssignInventoryToService = async () => {
+        try {
+            const values = await assignForm.validateFields();
+            if (selectedInventoryForAssign) {
+                await assignInventoryToService(
+                    selectedInventoryForAssign.inventoryId,
+                    values.serviceId
+                );
+                message.success("Inventory assigned to service successfully!");
+                setIsAssignServiceModalOpen(false);
+                assignForm.resetFields();
+            }
+        } catch (error) {
+            console.error("Error assigning inventory to service:", error);
+            message.error("Failed to assign inventory to service.");
         }
     };
 
@@ -294,6 +379,31 @@ const InventoryAndSupplierManagementPage = () => {
         setIsDeleteSupplierModalOpen(false);
     };
 
+    // Handle assigning inventory to supplier
+    const handleAssignSupplierClick = (inventory: InventoryData) => {
+        setSelectedInventoryForAssign(inventory);
+        assignForm.resetFields();
+        setIsAssignSupplierModalOpen(true);
+    };
+
+    const handleAssignInventoryToSupplier = async () => {
+        try {
+            const values = await assignForm.validateFields();
+            if (selectedInventoryForAssign) {
+                await assignInventoryToSupplier(
+                    selectedInventoryForAssign.inventoryId,
+                    values.supplierId
+                );
+                message.success("Inventory assigned to supplier successfully!");
+                setIsAssignSupplierModalOpen(false);
+                assignForm.resetFields();
+            }
+        } catch (error) {
+            console.error("Error assigning inventory to supplier:", error);
+            message.error("Failed to assign inventory to supplier.");
+        }
+    };
+
     const getSupplierColumnSearchProps = (dataIndex: SupplierDataIndex): TableColumnType<SupplierData> => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: FilterDropdownProps) => (
             <div style={{ padding: 8 }}>
@@ -359,6 +469,8 @@ const InventoryAndSupplierManagementPage = () => {
         }
     };
 
+
+
     return (
         <div>
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
@@ -394,8 +506,11 @@ const InventoryAndSupplierManagementPage = () => {
                         pagination={{ pageSize: 10 }}
                         scroll={{ x: 1000 }}
                     />
+
+
                 </Tabs.TabPane>
             </Tabs>
+
             {/* Add Inventory Modal */}
             <Modal
                 title="Add New Inventory Item"
@@ -531,8 +646,6 @@ const InventoryAndSupplierManagementPage = () => {
                 <p>Are you sure you want to delete this inventory item? This action cannot be undone.</p>
             </Modal>
 
-
-
             {/* Add Supplier Modal */}
             <Modal
                 title="Add New Supplier"
@@ -547,9 +660,9 @@ const InventoryAndSupplierManagementPage = () => {
                     <Form.Item
                         label="Name"
                         name="name"
-                        rules={[{ required: true, message: "Please enter the item name" }]}
+                        rules={[{ required: true, message: "Please enter the supplier name" }]}
                     >
-                        <Input placeholder="Enter item name" />
+                        <Input placeholder="Enter supplier name" />
                     </Form.Item>
 
                     <Form.Item
@@ -557,7 +670,7 @@ const InventoryAndSupplierManagementPage = () => {
                         name="phone"
                         rules={[{ required: true, message: "Please enter the phone" }]}
                     >
-                        <Input.TextArea placeholder="Enter phone" rows={3} />
+                        <Input placeholder="Enter phone number" />
                     </Form.Item>
 
                     <Form.Item
@@ -567,13 +680,12 @@ const InventoryAndSupplierManagementPage = () => {
                     >
                         <Input placeholder="Enter email" />
                     </Form.Item>
-
                 </Form>
             </Modal>
 
-            {/* Edit Inventory Modal */}
+            {/* Edit Supplier Modal */}
             <Modal
-                title="Edit Supplier Item"
+                title="Edit Supplier"
                 open={isEditSupplierModalOpen}
                 onCancel={() => setIsEditSupplierModalOpen(false)}
                 footer={[
@@ -585,9 +697,9 @@ const InventoryAndSupplierManagementPage = () => {
                     <Form.Item
                         label="Name"
                         name="name"
-                        rules={[{ required: true, message: "Please enter the item name" }]}
+                        rules={[{ required: true, message: "Please enter the supplier name" }]}
                     >
-                        <Input placeholder="Enter item name" />
+                        <Input placeholder="Enter supplier name" />
                     </Form.Item>
 
                     <Form.Item
@@ -595,7 +707,7 @@ const InventoryAndSupplierManagementPage = () => {
                         name="phone"
                         rules={[{ required: true, message: "Please enter the phone" }]}
                     >
-                        <Input.TextArea placeholder="Enter phone" rows={3} />
+                        <Input placeholder="Enter phone number" />
                     </Form.Item>
 
                     <Form.Item
@@ -608,7 +720,7 @@ const InventoryAndSupplierManagementPage = () => {
                 </Form>
             </Modal>
 
-            {/* Delete Confirmation Modal */}
+            {/* Delete Supplier Confirmation Modal */}
             <Modal
                 title="Confirm Delete"
                 open={isDeleteSupplierModalOpen}
@@ -622,10 +734,63 @@ const InventoryAndSupplierManagementPage = () => {
                     </Button>,
                 ]}
             >
-                <p>Are you sure you want to delete this supplier item? This action cannot be undone.</p>
+                <p>Are you sure you want to delete this supplier? This action cannot be undone.</p>
+            </Modal>
+
+            {/* Assign Inventory to Service Modal */}
+            <Modal
+                title={`Assign ${selectedInventoryForAssign?.name || 'Inventory'} to Service`}
+                open={isAssignServiceModalOpen}
+                onCancel={() => setIsAssignServiceModalOpen(false)}
+                footer={[
+                    <Button key="cancel" onClick={() => setIsAssignServiceModalOpen(false)}>Cancel</Button>,
+                    <Button key="submit" type="primary" onClick={handleAssignInventoryToService}>Assign</Button>,
+                ]}
+            >
+                <Form form={assignForm} layout="vertical">
+                    <Form.Item
+                        label="Select Service"
+                        name="serviceId"
+                        rules={[{ required: true, message: "Please select a service" }]}
+                    >
+                        <Select placeholder="Select service">
+                            {servicesList.map(service => (
+                                <Select.Option key={service.id} value={service.id}>
+                                    {service.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                </Form>
+            </Modal>
+
+            {/* Assign Inventory to Supplier Modal */}
+            <Modal
+                title={`Assign ${selectedInventoryForAssign?.name || 'Inventory'} to Supplier`}
+                open={isAssignSupplierModalOpen}
+                onCancel={() => setIsAssignSupplierModalOpen(false)}
+                footer={[
+                    <Button key="cancel" onClick={() => setIsAssignSupplierModalOpen(false)}>Cancel</Button>,
+                    <Button key="submit" type="primary" onClick={handleAssignInventoryToSupplier}>Assign</Button>,
+                ]}
+            >
+                <Form form={assignForm} layout="vertical">
+                    <Form.Item
+                        label="Select Supplier"
+                        name="supplierId"
+                        rules={[{ required: true, message: "Please select a supplier" }]}
+                    >
+                        <Select placeholder="Select supplier">
+                            {supplierData.map(supplier => (
+                                <Select.Option key={supplier.supplierId} value={supplier.supplierId}>
+                                    {supplier.name}
+                                </Select.Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                </Form>
             </Modal>
         </div>
-
     );
 };
 

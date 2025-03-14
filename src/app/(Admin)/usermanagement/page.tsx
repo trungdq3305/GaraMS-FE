@@ -7,7 +7,7 @@ import { SearchOutlined, PlusOutlined, EditOutlined, DeleteOutlined, InfoCircleO
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
 import moment from "moment";
-import { getUsers, updateUser, createUser,confirmUserStatus } from "@/dbUtils/AdminAPIs/userservice";
+import { getUsers, updateUser, createUser, confirmUserStatus } from "@/dbUtils/AdminAPIs/userservice";
 
 const { Option } = Select;
 
@@ -78,7 +78,7 @@ const UserManagementPage = () => {
       const values = await addForm.validateFields();
       await createUser({
         userName: values.username,
-        password: values.password, 
+        password: values.password,
         email: values.email,
         phoneNumber: values.phoneNumber,
         fullName: values.fullName,
@@ -94,7 +94,7 @@ const UserManagementPage = () => {
       message.error("Failed to add user.");
     }
   };
-  
+
   const handleEditClick = (user: UserData) => {
     setEditingUser(user);
     editForm.setFieldsValue({
@@ -132,8 +132,8 @@ const UserManagementPage = () => {
     }
   };
 
- 
-  
+
+
   const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<UserData> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: FilterDropdownProps) => (
       <div style={{ padding: 8 }}>
@@ -167,7 +167,7 @@ const UserManagementPage = () => {
       message.error("Failed to confirm user status.");
     }
   };
-  
+
   const columns: ColumnsType<UserData> = [
     { title: "ID", dataIndex: "userId", key: "userId", sorter: (a, b) => a.userId - b.userId },
     { title: "Username", dataIndex: "username", key: "username", ...getColumnSearchProps("username") },
@@ -175,47 +175,47 @@ const UserManagementPage = () => {
     { title: "Email", dataIndex: "email", key: "email", ...getColumnSearchProps("email") },
     { title: "Phone Number", dataIndex: "phoneNumber", key: "phoneNumber" },
     {
-        title: "Role",
-        dataIndex: "roleId",
-        key: "roleId",
-        filters: [
-          { text: "Admin", value: "4" },
-          { text: "Manager", value: "3" },
-          { text: "Employee", value: "2" },
-          { text: "Customer", value: "1" }
-        ],
-        onFilter: (value, record) => record.roleId === value,
-        render: (roleId: string | number) => {
-          const roleMapping: Record<string, string> = {
-            "4": "Admin",
-            "3": "Manager",
-            "2": "Employee",
-            "1": "Customer"
-          };
-      
-          // Chuyển roleId thành string để đảm bảo nó có thể dùng làm key
-          const role = roleMapping[String(roleId)] || "Unknown";
-      
-          let color = "blue";
-          if (role === "Admin") color = "red";
-          else if (role === "Manager") color = "purple";
-          else if (role === "Employee") color = "green";
-      
-          return <Tag color={color}>{role}</Tag>;
-        }
+      title: "Role",
+      dataIndex: "roleId",
+      key: "roleId",
+      filters: [
+        { text: "Admin", value: "4" },
+        { text: "Manager", value: "3" },
+        { text: "Employee", value: "2" },
+        { text: "Customer", value: "1" }
+      ],
+      onFilter: (value, record) => record.roleId === value,
+      render: (roleId: string | number) => {
+        const roleMapping: Record<string, string> = {
+          "4": "Admin",
+          "3": "Manager",
+          "2": "Employee",
+          "1": "Customer"
+        };
+
+        // Chuyển roleId thành string để đảm bảo nó có thể dùng làm key
+        const role = roleMapping[String(roleId)] || "Unknown";
+
+        let color = "blue";
+        if (role === "Admin") color = "red";
+        else if (role === "Manager") color = "purple";
+        else if (role === "Employee") color = "green";
+
+        return <Tag color={color}>{role}</Tag>;
       }
-      
-      ,
-    { 
-      title: "Status", 
-      dataIndex: "status", 
-      key: "status", 
+    }
+
+    ,
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       filters: [
         { text: "Active", value: true },
         { text: "Inactive", value: false }
       ],
       onFilter: (value, record) => record.status === value,
-      render: (status) => (status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>) 
+      render: (status) => (status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>)
     },
     { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
     {
@@ -230,21 +230,21 @@ const UserManagementPage = () => {
             Edit
           </Button>
           {record.status === false && (
-        <Button
-          type="primary"
-          onClick={() => handleConfirmStatus(record.userId)}
-        >
-          Confirm
-        </Button>
-      )}
+            <Button
+              type="primary"
+              onClick={() => handleConfirmStatus(record.userId)}
+            >
+              Confirm
+            </Button>
+          )}
         </Space>
       ),
     },
-    
-      
+
+
   ];
 
-  
+
 
   return (
     <div>
@@ -263,7 +263,7 @@ const UserManagementPage = () => {
         scroll={{ x: 1000 }}
       />
 
-      
+
 
       {/* Edit User Modal */}
       <Modal
@@ -311,7 +311,7 @@ const UserManagementPage = () => {
         </Form>
       </Modal>
 
-      
+
 
       {/* User Detail Modal */}
       <Modal
@@ -334,26 +334,26 @@ const UserManagementPage = () => {
               <Descriptions.Item label="Email">{detailUser.email}</Descriptions.Item>
               <Descriptions.Item label="Phone Number">{detailUser.phoneNumber}</Descriptions.Item>
               <Descriptions.Item label="Role">
-  <Tag color={{
-    "4": "red",      // Admin
-    "3": "purple",   // Manager
-    "2": "green",    // Employee
-    "1": "blue"      // Customer
-  }[String(detailUser.roleId)] || "gray"}>
-    {{
-      "4": "Admin",
-      "3": "Manager",
-      "2": "Employee",
-      "1": "Customer"
-    }[String(detailUser.roleId)] || "Unknown"}
-  </Tag>
-</Descriptions.Item>
+                <Tag color={{
+                  "4": "red",      // Admin
+                  "3": "purple",   // Manager
+                  "2": "green",    // Employee
+                  "1": "blue"      // Customer
+                }[String(detailUser.roleId)] || "gray"}>
+                  {{
+                    "4": "Admin",
+                    "3": "Manager",
+                    "2": "Employee",
+                    "1": "Customer"
+                  }[String(detailUser.roleId)] || "Unknown"}
+                </Tag>
+              </Descriptions.Item>
 
-<Descriptions.Item label="Status">
-  <Tag color={detailUser.status ? "green" : "red"}>
-    {detailUser.status ? "Active" : "Inactive"}
-  </Tag>
-</Descriptions.Item>
+              <Descriptions.Item label="Status">
+                <Tag color={detailUser.status ? "green" : "red"}>
+                  {detailUser.status ? "Active" : "Inactive"}
+                </Tag>
+              </Descriptions.Item>
 
               <Descriptions.Item label="Address" span={2}>{detailUser.address || 'N/A'}</Descriptions.Item>
               <Descriptions.Item label="Date of Birth">{detailUser.dateOfBirth || 'N/A'}</Descriptions.Item>
@@ -364,75 +364,75 @@ const UserManagementPage = () => {
         )}
       </Modal>
       {/* Add User Modal */}
-<Modal
-  title="Add User"
-  open={isModalOpen}
-  onCancel={() => {
-    setIsModalOpen(false);
-    addForm.resetFields();
-  }}
-  footer={[
-    <Button key="cancel" onClick={() => setIsModalOpen(false)}>Cancel</Button>,
-    <Button key="submit" type="primary" onClick={handleAddUser}>Add</Button>,
-  ]}
->
-  <Form form={addForm} layout="vertical">
-    <Form.Item
-      label="Username"
-      name="username"
-      rules={[{ required: true, message: "Please enter the username" }]}
-    >
-      <Input placeholder="Enter username" />
-    </Form.Item>
+      <Modal
+        title="Add User"
+        open={isModalOpen}
+        onCancel={() => {
+          setIsModalOpen(false);
+          addForm.resetFields();
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalOpen(false)}>Cancel</Button>,
+          <Button key="submit" type="primary" onClick={handleAddUser}>Add</Button>,
+        ]}
+      >
+        <Form form={addForm} layout="vertical">
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[{ required: true, message: "Please enter the username" }]}
+          >
+            <Input placeholder="Enter username" />
+          </Form.Item>
 
-    <Form.Item
-      label="Password"
-      name="password"
-      rules={[{ required: true, message: "Please enter the password" }]}
-    >
-      <Input.Password placeholder="Enter password" />
-    </Form.Item>
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[{ required: true, message: "Please enter the password" }]}
+          >
+            <Input.Password placeholder="Enter password" />
+          </Form.Item>
 
-    <Form.Item
-      label="Full Name"
-      name="fullName"
-      rules={[{ required: true, message: "Please enter the full name" }]}
-    >
-      <Input placeholder="Enter full name" />
-    </Form.Item>
+          <Form.Item
+            label="Full Name"
+            name="fullName"
+            rules={[{ required: true, message: "Please enter the full name" }]}
+          >
+            <Input placeholder="Enter full name" />
+          </Form.Item>
 
-    <Form.Item
-      label="Email"
-      name="email"
-      rules={[
-        { required: true, message: "Please enter the email" },
-        { type: 'email', message: "Please enter a valid email" }
-      ]}
-    >
-      <Input placeholder="Enter email" />
-    </Form.Item>
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Please enter the email" },
+              { type: 'email', message: "Please enter a valid email" }
+            ]}
+          >
+            <Input placeholder="Enter email" />
+          </Form.Item>
 
-    <Form.Item
-      label="Phone Number"
-      name="phoneNumber"
-      rules={[{ required: true, message: "Please enter the phone number" }]}
-    >
-      <Input placeholder="Enter phone number" />
-    </Form.Item>
+          <Form.Item
+            label="Phone Number"
+            name="phoneNumber"
+            rules={[{ required: true, message: "Please enter the phone number" }]}
+          >
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
 
-    <Form.Item label="Role" name="roleId" rules={[{ required: true, message: "Please select a role" }]}>
-      <Select placeholder="Select role">
-        <Option value={3}>Manager</Option>
-        <Option value={2}>Employee</Option>
-        <Option value={1}>Customer</Option>
-      </Select>
-    </Form.Item>
+          <Form.Item label="Role" name="roleId" rules={[{ required: true, message: "Please select a role" }]}>
+            <Select placeholder="Select role">
+              <Option value={3}>Manager</Option>
+              <Option value={2}>Employee</Option>
+              <Option value={1}>Customer</Option>
+            </Select>
+          </Form.Item>
 
-    <Form.Item label="Address" name="address">
-      <Input.TextArea placeholder="Enter address" rows={3} />
-    </Form.Item>
-  </Form>
-</Modal>
+          <Form.Item label="Address" name="address">
+            <Input.TextArea placeholder="Enter address" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
 
     </div>
   );
