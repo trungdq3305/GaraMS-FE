@@ -1,4 +1,6 @@
+import { message } from "antd";
 import axiosInstance from "../axios";
+
 
 export const getUsers = async () => {
     const response = await axiosInstance.get("/user/get-all");
@@ -34,6 +36,7 @@ export const createUser = async (userData: {
         return response.data;
     } catch (error) {
         console.error("Error creating user:", error);
+        message.error("Failed to add user.");
         throw error;
     }
 };
