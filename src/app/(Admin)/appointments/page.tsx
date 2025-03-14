@@ -2,7 +2,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, Modal, message, Tag, Descriptions, Avatar, Divider } from "antd";
+import {
+  Button,
+  Input as AntInput,
+  Space,
+  Table,
+  Modal,
+  message,
+  Tag,
+  Descriptions,
+  Avatar,
+  Divider,
+} from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined, UserOutlined, EyeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -55,7 +66,8 @@ const AppointmentManagementPage = () => {
   const [successModalVisible, setSuccessModalVisible] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
   const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState<DataType | null>(null);
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<DataType | null>(null);
 
   const searchInput = useRef<InputRef>(null);
 
@@ -78,15 +90,17 @@ const AppointmentManagementPage = () => {
             serviceName: s.service?.serviceName || "Unknown Service",
             totalPrice: s.service?.totalPrice || 0,
           })),
-          customerInfo: item.vehicle?.customer ? {
-            customerId: item.vehicle.customer.customerId,
-            fullName: item.vehicle.customer.user.fullName,
-            phoneNumber: item.vehicle.customer.user.phoneNumber,
-            email: item.vehicle.customer.user.email,
-            address: item.vehicle.customer.user.address,
-            gender: item.vehicle.customer.gender,
-            note: item.vehicle.customer.note
-          } : null,
+          customerInfo: item.vehicle?.customer
+            ? {
+                customerId: item.vehicle.customer.customerId,
+                fullName: item.vehicle.customer.user.fullName,
+                phoneNumber: item.vehicle.customer.user.phoneNumber,
+                email: item.vehicle.customer.user.email,
+                address: item.vehicle.customer.user.address,
+                gender: item.vehicle.customer.gender,
+                note: item.vehicle.customer.note,
+              }
+            : null,
         }));
         setData(appointments);
       } catch (error) {
@@ -132,6 +146,25 @@ const AppointmentManagementPage = () => {
     } catch (error) {
       console.error("Error accepting appointment:", error);
       message.error(`Không thể Accept Appointment #${appointmentId}.`);
+    }
+  };
+  const handleComplete = async (appointmentId: number) => {
+    try {
+      await updateAppointmentStatus(appointmentId, "Complete", "1");
+      setData((prevData) =>
+        prevData.map((item) =>
+          item.appointmentId === appointmentId
+            ? { ...item, status: "Complete" }
+            : item
+        )
+      );
+      setSuccessMessage(
+        `Appointment #${appointmentId} đã được Complete thành công.`
+      );
+      setSuccessModalVisible(true); // Hiển thị Modal
+    } catch (error) {
+      console.error("Error accepting appointment:", error);
+      message.error(`Không thể Complete Appointment #${appointmentId}.`);
     }
   };
 
@@ -290,6 +323,7 @@ const AppointmentManagementPage = () => {
           >
             Details
           </Button>
+          {(record.status === "Pending" || record.status === "Reject" ) && ( 
           <Button
             icon={<EditOutlined />}
             style={{ border: "1px solid #d9d9d9" }}
@@ -297,6 +331,8 @@ const AppointmentManagementPage = () => {
           >
             Accept
           </Button>
+          )}
+          {(record.status === "Pending" || record.status === "Accept" ) && ( 
           <Button
             icon={<DeleteOutlined />}
             danger
@@ -307,6 +343,16 @@ const AppointmentManagementPage = () => {
           >
             Reject
           </Button>
+          )}
+          {record.status === "Paid" && ( 
+        <Button
+          icon={<EditOutlined />}
+          style={{ border: "1px solid #d9d9d9" }}
+          onClick={() => handleComplete(record.appointmentId)}
+        >
+          Complete
+        </Button>
+      )}
         </Space>
       ),
     },
@@ -379,38 +425,55 @@ const AppointmentManagementPage = () => {
           <div className="appointment-detail-container">
             {/* Appointment Info */}
             <Descriptions title="Appointment Information" bordered column={1}>
-              <Descriptions.Item label="ID">{selectedAppointment.appointmentId}</Descriptions.Item>
-              <Descriptions.Item label="Booked Date">{selectedAppointment.date}</Descriptions.Item>
+              <Descriptions.Item label="ID">
+                {selectedAppointment.appointmentId}
+              </Descriptions.Item>
+              <Descriptions.Item label="Booked Date">
+                {selectedAppointment.date}
+              </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag
                   color={
-                    selectedAppointment.status === "Accept" ? "green" :
-                      selectedAppointment.status === "Reject" ? "red" : "black"
+                    selectedAppointment.status === "Accept"
+                      ? "green"
+                      : selectedAppointment.status === "Reject"
+                      ? "red"
+                      : "black"
                   }
                 >
                   {selectedAppointment.status}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Vehicle">{selectedAppointment.vehicle}</Descriptions.Item>
-              <Descriptions.Item label="Note">{selectedAppointment.note || "N/A"}</Descriptions.Item>
+              <Descriptions.Item label="Vehicle">
+                {selectedAppointment.vehicle}
+              </Descriptions.Item>
+              <Descriptions.Item label="Note">
+                {selectedAppointment.note || "N/A"}
+              </Descriptions.Item>
             </Descriptions>
 
             {/* Services */}
             <Divider />
             <h3 className="text-lg font-semibold mb-3">Services</h3>
             <Table
-              dataSource={selectedAppointment.services.map((service, index) => ({
-                key: index,
-                ...service
-              }))}
+              dataSource={selectedAppointment.services.map(
+                (service, index) => ({
+                  key: index,
+                  ...service,
+                })
+              )}
               columns={[
-                { title: 'Service Name', dataIndex: 'serviceName', key: 'serviceName' },
                 {
-                  title: 'Price',
-                  dataIndex: 'totalPrice',
-                  key: 'totalPrice',
-                  render: (price) => `${price.toLocaleString()} VND`
-                }
+                  title: "Service Name",
+                  dataIndex: "serviceName",
+                  key: "serviceName",
+                },
+                {
+                  title: "Price",
+                  dataIndex: "totalPrice",
+                  key: "totalPrice",
+                  render: (price) => `${price.toLocaleString()} VND`,
+                },
               ]}
               pagination={false}
               size="small"
@@ -420,20 +483,36 @@ const AppointmentManagementPage = () => {
             {selectedAppointment.customerInfo && (
               <>
                 <Divider />
-                <h3 className="text-lg font-semibold mb-3">Customer Information</h3>
+                <h3 className="text-lg font-semibold mb-3">
+                  Customer Information
+                </h3>
                 <div className="flex items-center mb-4">
                   <Avatar size={64} icon={<UserOutlined />} className="mr-4" />
                   <div>
-                    <h2 className="text-lg font-semibold">{selectedAppointment.customerInfo.fullName}</h2>
-                    <p>Customer ID: {selectedAppointment.customerInfo.customerId}</p>
+                    <h2 className="text-lg font-semibold">
+                      {selectedAppointment.customerInfo.fullName}
+                    </h2>
+                    <p>
+                      Customer ID: {selectedAppointment.customerInfo.customerId}
+                    </p>
                   </div>
                 </div>
                 <Descriptions bordered column={1}>
-                  <Descriptions.Item label="Phone Number">{selectedAppointment.customerInfo.phoneNumber}</Descriptions.Item>
-                  <Descriptions.Item label="Email">{selectedAppointment.customerInfo.email}</Descriptions.Item>
-                  <Descriptions.Item label="Address">{selectedAppointment.customerInfo.address}</Descriptions.Item>
-                  <Descriptions.Item label="Gender">{selectedAppointment.customerInfo.gender}</Descriptions.Item>
-                  <Descriptions.Item label="Customer Note">{selectedAppointment.customerInfo.note || "N/A"}</Descriptions.Item>
+                  <Descriptions.Item label="Phone Number">
+                    {selectedAppointment.customerInfo.phoneNumber}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Email">
+                    {selectedAppointment.customerInfo.email}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Address">
+                    {selectedAppointment.customerInfo.address}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Gender">
+                    {selectedAppointment.customerInfo.gender}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Customer Note">
+                    {selectedAppointment.customerInfo.note || "N/A"}
+                  </Descriptions.Item>
                 </Descriptions>
               </>
             )}
