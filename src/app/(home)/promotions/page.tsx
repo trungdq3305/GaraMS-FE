@@ -3,6 +3,10 @@
 import { motion } from "framer-motion";
 import { usePromotion } from "@/dbUtils/promotionAPIs/promotionList";
 import { useRouter } from "next/navigation";
+import { Card, Button, Typography, Row, Col, Spin } from "antd";
+import dayjs from "dayjs";
+
+const { Title, Text } = Typography;
 
 export default function PromotionListPage() {
   const { data: promotions, isLoading, error } = usePromotion();
@@ -10,51 +14,62 @@ export default function PromotionListPage() {
 
   if (isLoading)
     return (
-      <div className="text-center text-gray-500">Loading promotions...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <Spin size="large" />
+      </div>
     );
+
   if (error)
     return (
-      <div className="text-red-600 text-center">Failed to load promotions.</div>
+      <div className="text-red-600 text-center mt-10">
+        Failed to load promotions.
+      </div>
     );
 
   return (
     <motion.div
-      className="min-h-screen flex flex-col items-center justify-center bg-gray-100 py-8"
+      className="min-h-screen bg-gray-100 py-8 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-3xl font-bold mb-6">🎉 Current Promotions</h1>
+      <Title level={2} className="text-center">
+        🎉 Current Promotions
+      </Title>
 
-      <div className="max-w-4xl w-full grid gap-6">
+      <Row gutter={[16, 16]} justify="center" className="mt-6">
         {promotions?.map((promotion) => (
-          <motion.div
-            key={promotion.promotionId}
-            className="bg-white p-5 rounded-lg shadow-md border border-gray-200"
-            whileHover={{ scale: 1.02 }}
-          >
-            <h2 className="text-xl font-semibold text-blue-600">
-              {promotion.promotionName}
-            </h2>
-            <p className="text-gray-700 mt-1">
-              📅 {new Date(promotion.startDate).toLocaleDateString()} -{" "}
-              {new Date(promotion.endDate).toLocaleDateString()}
-            </p>
-            <p className="text-lg font-bold text-green-600">
-              🔥 {promotion.discountPercent}% OFF
-            </p>
+          <Col xs={24} sm={12} md={8} key={promotion.promotionId}>
+            <motion.div whileHover={{ scale: 1.05 }}>
+              <Card
+                title={promotion.promotionName}
+                bordered={false}
+                className="shadow-md rounded-lg"
+              >
+                <Text type="secondary">
+                  📅 {"  "}
+                  {dayjs(promotion.startDate).format("DD/MM/YYYY")} -{" "}
+                  {dayjs(promotion.endDate).format("DD/MM/YYYY")}
+                </Text>
+                <p className="text-lg font-bold text-green-600 mt-2">
+                  🔥 {promotion.discountPercent}% OFF
+                </p>
 
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-              onClick={() =>
-                router.push(`/promotions/${promotion.promotionId}`)
-              }
-            >
-              View Details
-            </button>
-          </motion.div>
+                <Button
+                  type="primary"
+                  block
+                  className="mt-4"
+                  onClick={() =>
+                    router.push(`/promotions/${promotion.promotionId}`)
+                  }
+                >
+                  View Details
+                </Button>
+              </Card>
+            </motion.div>
+          </Col>
         ))}
-      </div>
+      </Row>
     </motion.div>
   );
 }
