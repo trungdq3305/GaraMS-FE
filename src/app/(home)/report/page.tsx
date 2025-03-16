@@ -47,7 +47,7 @@ const ReportPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="flex justify-center bg-gray-100 pt-10"
+      className="flex justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 py-10"
     >
       <Card className="max-w-xl w-full shadow-lg rounded-lg p-6">
         <Title level={3} className="text-center mb-4">

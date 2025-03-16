@@ -9,3 +9,7 @@ export const createReport = async (reportData: {
   const response = await axiosInstance.post("report/report", reportData);
   return response.data;
 };
+export const getReports = async () => {
+    const response = await axiosInstance.get("report/reports");
+    return response.data;
+};
