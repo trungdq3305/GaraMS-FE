@@ -4,36 +4,36 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVehicle } from "@/dbUtils/vehicleAPIs/vehicleLogin";
 import { useCreateVehicle } from "@/dbUtils/vehicleAPIs/vehicleCreate";
-import Link from "next/link";
+import { Card, Button, Modal, Form, Input, Spin, Alert } from "antd";
+import { motion } from "framer-motion";
 
 const Vehicles = () => {
   const router = useRouter();
   const { data: vehicleData, isLoading, error } = useVehicle();
   const { mutate, isPending: isCreating } = useCreateVehicle();
-
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    plateNumber: "",
-    brand: "",
-    model: "",
-  });
+  const [form] = Form.useForm();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    setFormData({ plateNumber: "", brand: "", model: "" }); // Reset form
+    form.resetFields();
   };
 
-  const handleSubmit = () => {
-    mutate(formData, {
+  const handleSubmit = (values: {
+    plateNumber: string;
+    brand: string;
+    model: string;
+  }) => {
+    mutate(values, {
       onSuccess: () => closeModal(),
     });
   };
 
   if (isLoading) {
     return (
-      <div className="p-6 flex justify-center items-center min-h-[50vh]">
-        <div className="text-xl">Loading vehicles...</div>
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <Spin size="large" />
       </div>
     );
   }
@@ -41,15 +41,18 @@ const Vehicles = () => {
   if (error) {
     return (
       <div className="p-6 flex flex-col justify-center items-center min-h-[50vh]">
-        <div className="text-xl text-red-500 mb-4">
-          {error.message || "Error loading vehicles"}
-        </div>
-        <Link
-          href="/"
-          className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
+        <Alert
+          message={error.message || "Error loading vehicles"}
+          type="error"
+          showIcon
+        />
+        <Button
+          type="primary"
+          className="mt-4"
+          onClick={() => router.push("/")}
         >
           Back to homepage
-        </Link>
+        </Button>
       </div>
     );
   }
@@ -68,106 +71,90 @@ const Vehicles = () => {
 
       {vehicles.length === 0 ? (
         <div className="p-6 flex flex-col justify-center items-center min-h-[50vh]">
-          <div className="text-xl mb-4">
-            You do not have vehicle information
-          </div>
-          <button
-            onClick={openModal}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-          >
+          <p className="text-xl mb-4">You do not have vehicle information</p>
+          <Button type="primary" onClick={openModal}>
             Add your new vehicle
-          </button>
+          </Button>
         </div>
       ) : (
-        <>
-          <div className="space-y-4">
-            {vehicles.map((vehicle) => (
-              <div
-                key={vehicle.vehicleId}
-                className="bg-white shadow-lg rounded-lg p-6 border flex justify-between items-center"
-              >
-                <div>
-                  <p>
-                    <strong>Plate Number:</strong> {vehicle.plateNumber}
-                  </p>
-                  <p>
-                    <strong>Brand:</strong> {vehicle.brand}
-                  </p>
-                  <p>
-                    <strong>Model:</strong> {vehicle.model}
-                  </p>
-                </div>
-                <button
-                  onClick={() => router.push(`/profile/${vehicle.vehicleId}`)}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700"
-                >
-                  Detail
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-6 flex justify-center">
-            <button
-              onClick={openModal}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {vehicles.map((vehicle) => (
+            <motion.div
+              key={vehicle.vehicleId}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              Add new vehicle
-            </button>
-          </div>
-        </>
-      )}
-
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-[90%] max-w-md">
-            <h3 className="text-2xl font-bold mb-4">Add New Vehicle</h3>
-            <input
-              type="text"
-              placeholder="Plate Number"
-              value={formData.plateNumber}
-              onChange={(e) =>
-                setFormData({ ...formData, plateNumber: e.target.value })
-              }
-              className="w-full p-2 border rounded mb-2"
-            />
-            <input
-              type="text"
-              placeholder="Brand"
-              value={formData.brand}
-              onChange={(e) =>
-                setFormData({ ...formData, brand: e.target.value })
-              }
-              className="w-full p-2 border rounded mb-2"
-            />
-            <input
-              type="text"
-              placeholder="Model"
-              value={formData.model}
-              onChange={(e) =>
-                setFormData({ ...formData, model: e.target.value })
-              }
-              className="w-full p-2 border rounded mb-4"
-            />
-            <div className="flex justify-between">
-              <button
-                onClick={closeModal}
-                className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+              <Card
+                title={vehicle.plateNumber}
+                bordered={false}
+                className="shadow-lg"
+                style={{ lineHeight: "30px" }}
               >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
-                disabled={isCreating}
-              >
-                {isCreating ? "Adding..." : "Add Vehicle"}
-              </button>
-            </div>
-          </div>
+                <p>
+                  <strong>Brand:</strong> {vehicle.brand}
+                </p>
+                <p>
+                  <strong>Model:</strong> {vehicle.model}
+                </p>
+                <Button
+                  type="primary"
+                  style={{ marginTop: 10 }}
+                  onClick={() => router.push(`/profile/${vehicle.vehicleId}`)}
+                >
+                  View Details
+                </Button>
+              </Card>
+            </motion.div>
+          ))}
         </div>
       )}
+
+      <div className="mt-6 flex justify-center">
+        <Button type="primary" onClick={openModal}>
+          Add new vehicle
+        </Button>
+      </div>
+
+      {/* Modal */}
+      <Modal
+        title="Add New Vehicle"
+        open={isModalOpen}
+        onCancel={closeModal}
+        footer={null}
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Form.Item
+            name="plateNumber"
+            label="Plate Number"
+            rules={[{ required: true, message: "Please enter plate number" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="brand"
+            label="Brand"
+            rules={[{ required: true, message: "Please enter brand" }]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            name="model"
+            label="Model"
+            rules={[{ required: true, message: "Please enter model" }]}
+          >
+            <Input />
+          </Form.Item>
+          <div className="flex justify-end">
+            <Button onClick={closeModal} className="mr-2">
+              Cancel
+            </Button>
+            <Button type="primary" htmlType="submit" loading={isCreating}>
+              Add Vehicle
+            </Button>
+          </div>
+        </Form>
+      </Modal>
     </div>
   );
 };

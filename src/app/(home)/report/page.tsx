@@ -1,7 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
 import { createReport } from "@/dbUtils/ManagerAPIs/reportservice";
+import { Card, Input, Button, Typography, Modal } from "antd";
+import { CheckCircleOutlined } from "@ant-design/icons";
+import { motion } from "framer-motion";
+
+const { Title, Text } = Typography;
+const { TextArea } = Input;
 
 const ReportPage = () => {
   const [formData, setFormData] = useState({
@@ -10,91 +17,100 @@ const ReportPage = () => {
     description: "",
   });
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: { target: { name: any; value: any } }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
-      const reportData = {
-        ...formData,
-        customerId: 1, // Giá trị này có thể lấy từ context hoặc store nếu cần
-      };
-
+      const reportData = { ...formData, customerId: 1 };
       const response = await createReport(reportData);
       if (response.isSuccess) {
-        setMessage("Report created successfully!");
+        setSuccessModalVisible(true);
         setFormData({ problem: "", title: "", description: "" });
-      } else {
-        setMessage("Failed to create report.");
       }
     } catch (error) {
-      setMessage("Error creating report.");
-      console.error("Error:", error);
+      console.error("Error creating report:", error);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-      <h2 className="text-3xl font-bold text-center mb-6">
-        Report Information
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block font-semibold mb-1">Problem</label>
-          <input
-            type="text"
-            name="problem"
-            value={formData.problem}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex justify-center bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 py-10"
+    >
+      <Card className="max-w-xl w-full shadow-lg rounded-lg p-6">
+        <Title level={3} className="text-center mb-4">
+          Report Information
+        </Title>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <Text strong>Problem</Text>
+            <Input
+              name="problem"
+              value={formData.problem}
+              onChange={handleChange}
+              required
+              placeholder="Enter problem"
+            />
+          </div>
+          <div>
+            <Text strong>Title</Text>
+            <Input
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              required
+              placeholder="Enter title"
+            />
+          </div>
+          <div>
+            <Text strong>Description</Text>
+            <TextArea
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+              placeholder="Enter description"
+              rows={4}
+            />
+          </div>
+          <motion.div whileTap={{ scale: 0.95 }}>
+            <Button type="primary" htmlType="submit" block loading={loading}>
+              Send Report
+            </Button>
+          </motion.div>
+        </form>
+      </Card>
+
+      {/* Success Modal */}
+      <Modal
+        open={successModalVisible}
+        onCancel={() => setSuccessModalVisible(false)}
+        footer={null}
+        centered
+      >
+        <div className="text-center p-4">
+          <CheckCircleOutlined style={{ fontSize: "48px", color: "#52c41a" }} />
+          <Title level={4} className="mt-3">
+            Report Created Successfully!
+          </Title>
+          <Button type="primary" onClick={() => setSuccessModalVisible(false)}>
+            OK
+          </Button>
         </div>
-        <div>
-          <label className="block font-semibold mb-1">Title</label>
-          <input
-            type="text"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg"
-          />
-        </div>
-        <div>
-          <label className="block font-semibold mb-1">Description</label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            className="w-full p-2 border rounded-lg h-28"
-          />
-        </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg text-lg hover:bg-blue-700 transition disabled:bg-gray-400"
-          disabled={loading}
-        >
-          {loading ? "Sending..." : "Send Report"}
-        </button>
-        {message && (
-          <p className="text-center mt-4 text-green-600">{message}</p>
-        )}
-      </form>
-    </div>
+      </Modal>
+    </motion.div>
   );
 };
 
