@@ -3,6 +3,7 @@
 import React from "react";
 import "./globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { AuthGuardProvider } from "@/context/AuthGuardContext";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +21,9 @@ export default function RootLayout({
     <html lang="en">
       <QueryClientProvider client={queryClient}>
         <body className="bg-gray-100 text-gray-900">
-          <main>{children}</main>
+          <AuthGuardProvider>
+            <main>{children}</main>
+          </AuthGuardProvider>
         </body>
       </QueryClientProvider>
     </html>
