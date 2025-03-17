@@ -3,7 +3,7 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import { motion } from "framer-motion";
 import { createUser } from "@/dbUtils/authAPIs/registerService";
-
+import axiosInstance from "@/dbUtils/axios";
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     username: "",
@@ -18,6 +18,10 @@ export default function RegisterPage() {
   const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const [isRegisterSuccess, setIsRegisterSuccess] = useState(false);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -55,7 +59,8 @@ export default function RegisterPage() {
 
     try {
       await createUser(requestData);
-      setIsRegisterSuccess(true);
+      // Instead of setting success immediately, show the verification modal
+      setShowVerificationModal(true);
     } catch (error: any) {
       console.error("Error during registration:", error);
       alert(error || "An error occurred during registration.");
@@ -64,12 +69,101 @@ export default function RegisterPage() {
     }
   };
 
+  const handleVerificationCodeChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setVerificationCode(e.target.value);
+    setVerificationError("");
+  };
+
+  const handleVerifyCode = async () => {
+    if (!verificationCode.trim()) {
+      setVerificationError("Please enter the verification code");
+      return;
+    }
+
+    setVerificationLoading(true);
+    try {
+      const encodedEmail = encodeURIComponent(formData.email);
+      const encodedCode = encodeURIComponent(verificationCode);
+
+      const response = await axiosInstance.post(`user/confirm-with-code?email=${formData.email}&code=${verificationCode}`);
+      // Verification successful
+      setShowVerificationModal(false);
+      setIsRegisterSuccess(true);
+    } catch (error: any) {
+      console.error("Error during verification:", error);
+      setVerificationError(error.message || "Invalid verification code. Please try again.");
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
   const goToLoginPage = () => {
     window.location.href = "/login"; // Redirect to login page
   };
 
+  const resendVerificationCode = async () => {
+    // Implement the logic to resend the verification code
+    // This would typically call an API endpoint to resend the code
+    alert("Verification code resent to your email.");
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-gray-100 flex items-center justify-center">
+      {/* Verification Code Modal */}
+      {showVerificationModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-gray-800 p-8 rounded-xl shadow-lg text-center space-y-6 max-w-md w-full border border-gray-700"
+          >
+            <h2 className="text-2xl font-bold text-blue-400">Email Verification</h2>
+            <p className="text-gray-300">
+              We've sent a verification code to your email address: <br />
+              <span className="font-medium text-white">{formData.email}</span>
+            </p>
+
+            <div className="space-y-2">
+              <label htmlFor="verificationCode" className="block text-sm font-medium text-gray-300 text-left">
+                Enter Verification Code
+              </label>
+              <input
+                type="text"
+                id="verificationCode"
+                value={verificationCode}
+                onChange={handleVerificationCodeChange}
+                className="w-full p-3 rounded-lg bg-gray-900 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter 6-digit code"
+              />
+              {verificationError && (
+                <p className="text-red-500 text-sm mt-1 text-left">{verificationError}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col space-y-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleVerifyCode}
+                disabled={verificationLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-3 rounded-lg text-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all duration-300"
+              >
+                {verificationLoading ? "Verifying..." : "Verify"}
+              </motion.button>
+
+              <button
+                onClick={resendVerificationCode}
+                className="text-blue-400 hover:text-blue-300 text-sm underline"
+              >
+                Didn't receive a code? Resend
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Success Modal */}
       {isRegisterSuccess && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <motion.div
@@ -79,7 +173,7 @@ export default function RegisterPage() {
             className="bg-gray-800 p-6 rounded-lg shadow-lg text-center space-y-4"
           >
             <h2 className="text-2xl font-bold text-green-400">Registration Successful!</h2>
-            <p className="text-gray-300">Your account has been created successfully.</p>
+            <p className="text-gray-300">Your account has been created and verified successfully.</p>
             <button
               onClick={goToLoginPage}
               className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-500 hover:to-purple-500"
@@ -144,9 +238,8 @@ export default function RegisterPage() {
               id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className={`w-full p-3 rounded-lg bg-gray-900 text-gray-100 border ${
-                passwordError ? "border-red-500" : "border-gray-700"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              className={`w-full p-3 rounded-lg bg-gray-900 text-gray-100 border ${passwordError ? "border-red-500" : "border-gray-700"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500`}
               placeholder="Confirm Your Password"
               required
             />
