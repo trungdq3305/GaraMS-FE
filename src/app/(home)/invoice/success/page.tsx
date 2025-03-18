@@ -22,8 +22,9 @@ export default function SuccessPage() {
   const [invoice, setInvoice] = useState<any>(null);
 
   useEffect(() => {
-    const queryToken = searchParams.get("token");
-    const queryPayerId = searchParams.get("PayerID");
+    const params = new URLSearchParams(window.location.search);
+    const queryToken = params.get("token");
+    const queryPayerId = params.get("PayerID");
     if (queryToken && queryPayerId) {
       setToken(queryToken);
       setPayerId(queryPayerId);
@@ -31,7 +32,8 @@ export default function SuccessPage() {
       setMessage("Token or PayerID not valid.");
       setLoading(false);
     }
-  }, [searchParams]);
+  }, []);
+
 
   useEffect(() => {
     async function processPayment() {
