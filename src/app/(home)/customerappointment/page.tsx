@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { getAppointmentsByCustomer } from "@/dbUtils/appointmentAPIs/appointment";
 import Link from "next/link";
 import axios from "axios";
@@ -85,7 +84,6 @@ interface AppointmentResponse {
 }
 
 const Appointments = () => {
-  const router = useRouter();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -131,11 +129,11 @@ const Appointments = () => {
         );
         window.location.href = paymentResponse.data.url;
       } else {
-        alert("Không tìm thấy hóa đơn cho cuộc hẹn này.");
+        alert("No invoice found for this appointment.");
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý thanh toán:", error);
-      alert("Có lỗi xảy ra khi thanh toán.");
+      console.error("Error process payment:", error);
+      alert("Error when execute payment.");
     }
   };
 
@@ -284,9 +282,9 @@ const Appointments = () => {
                     </Tag>
                   </div>
                 }
-              // extra={
-              //   <Text type="secondary">{formatDate(appointment.date)}</Text>
-              // }
+                // extra={
+                //   <Text type="secondary">{formatDate(appointment.date)}</Text>
+                // }
               >
                 <Space direction="vertical" className="w-full">
                   <div className="flex items-center">
@@ -312,14 +310,15 @@ const Appointments = () => {
                     </Paragraph>
                   </div>
 
-                  {(appointment.rejectReason && appointment.status === "Reject") && (
-                    <Alert
-                      message="Reject Reason"
-                      description={appointment.rejectReason}
-                      type="error"
-                      showIcon
-                    />
-                  )}
+                  {appointment.rejectReason &&
+                    appointment.status === "Reject" && (
+                      <Alert
+                        message="Reject Reason"
+                        description={appointment.rejectReason}
+                        type="error"
+                        showIcon
+                      />
+                    )}
 
                   <Divider orientation="left">Services</Divider>
                   <List
@@ -355,7 +354,7 @@ const Appointments = () => {
                         icon={<CreditCardOutlined />}
                         onClick={() => handlePayment(appointment.appointmentId)}
                       >
-                        Thanh toán
+                        Payment
                       </Button>
                     )}
                   </div>

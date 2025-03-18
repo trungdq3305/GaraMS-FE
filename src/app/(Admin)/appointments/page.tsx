@@ -18,7 +18,11 @@ import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined, UserOutlined, EyeOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
 import type { FilterDropdownProps } from "antd/es/table/interface";
-import { EditOutlined, DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
+import {
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 import {
   getAppointments,
@@ -92,14 +96,14 @@ const AppointmentManagementPage = () => {
           })),
           customerInfo: item.vehicle?.customer
             ? {
-              customerId: item.vehicle.customer.customerId,
-              fullName: item.vehicle.customer.user.fullName,
-              phoneNumber: item.vehicle.customer.user.phoneNumber,
-              email: item.vehicle.customer.user.email,
-              address: item.vehicle.customer.user.address,
-              gender: item.vehicle.customer.gender,
-              note: item.vehicle.customer.note,
-            }
+                customerId: item.vehicle.customer.customerId,
+                fullName: item.vehicle.customer.user.fullName,
+                phoneNumber: item.vehicle.customer.user.phoneNumber,
+                email: item.vehicle.customer.user.email,
+                address: item.vehicle.customer.user.address,
+                gender: item.vehicle.customer.gender,
+                note: item.vehicle.customer.note,
+              }
             : null,
         }));
         setData(appointments);
@@ -255,10 +259,7 @@ const AppointmentManagementPage = () => {
           >
             Filter
           </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => close()}>
+          <Button type="link" size="small" onClick={() => close()}>
             Close
           </Button>
         </Space>
@@ -276,7 +277,9 @@ const AppointmentManagementPage = () => {
 
   const columns: ColumnsType<DataType> = [
     {
-      title: "ID", dataIndex: "appointmentId", key: "appointmentId",
+      title: "ID",
+      dataIndex: "appointmentId",
+      key: "appointmentId",
       sorter: (a, b) =>
         moment(a.appointmentId, "").valueOf() -
         moment(b.appointmentId, "").valueOf(),
@@ -329,11 +332,11 @@ const AppointmentManagementPage = () => {
       title: "Action",
       key: "action",
       render: (_, record) => (
-        <Space size="small" style={{ display: 'flex' }}>
+        <Space size="small" style={{ display: "flex" }}>
           <Button
             icon={<EyeOutlined />}
             type="default"
-            style={{ width: '100px' }}
+            style={{ width: "100px" }}
             onClick={() => handleViewDetail(record)}
           >
             Details
@@ -343,7 +346,7 @@ const AppointmentManagementPage = () => {
           {(record.status === "Pending" || record.status === "Reject") && (
             <Button
               icon={<EditOutlined />}
-              style={{ width: '100px' }}
+              style={{ width: "100px" }}
               onClick={() => handleAccept(record.appointmentId)}
             >
               Accept
@@ -354,7 +357,7 @@ const AppointmentManagementPage = () => {
           {record.status === "Paid" && (
             <Button
               icon={<CheckCircleOutlined />}
-              style={{ width: '100px' }}
+              style={{ width: "100px" }}
               onClick={() => handleComplete(record.appointmentId)}
             >
               Complete
@@ -367,7 +370,7 @@ const AppointmentManagementPage = () => {
             <Button
               icon={<DeleteOutlined />}
               danger
-              style={{ width: '100px' }}
+              style={{ width: "100px" }}
               onClick={() => {
                 setRejectModalVisible(true);
                 setSelectedAppointmentId(record.appointmentId);
@@ -378,13 +381,15 @@ const AppointmentManagementPage = () => {
           )}
 
           {/* Placeholder to keep spacing when fewer buttons */}
-          {(record.status === "Paid" || record.status === "Complete" || record.status === "Reject") && (
-            <div style={{ width: '100px' }}></div>
+          {(record.status === "Paid" ||
+            record.status === "Complete" ||
+            record.status === "Reject") && (
+            <div style={{ width: "100px" }}></div>
           )}
 
           {/* Placeholder to keep spacing when fewer buttons */}
           {(record.status === "Paid" || record.status === "Complete") && (
-            <div style={{ width: '100px' }}></div>
+            <div style={{ width: "100px" }}></div>
           )}
         </Space>
       ),
@@ -470,12 +475,12 @@ const AppointmentManagementPage = () => {
                     selectedAppointment.status === "Accept"
                       ? "green"
                       : selectedAppointment.status === "Reject"
-                        ? "red"
-                        : selectedAppointment.status === "Paid"
-                          ? "blue"
-                          : selectedAppointment.status === "Complete"
-                            ? "purple"
-                            : "black"
+                      ? "red"
+                      : selectedAppointment.status === "Paid"
+                      ? "blue"
+                      : selectedAppointment.status === "Complete"
+                      ? "purple"
+                      : "black"
                   }
                 >
                   {selectedAppointment.status}
