@@ -4,7 +4,6 @@ import { useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import axiosInstance from "@/dbUtils/axios";
-import axios from "axios";
 import {
   CheckCircle,
   AlertCircle,
@@ -51,11 +50,9 @@ export default function SuccessPage() {
           setMessage("Error orrcur while payment.");
         }
       } catch (error) {
-        if (axios.isAxiosError(error)) {
-          setMessage(`Error orrcur while payment: ${error.message}`);
-        } else {
-          setMessage("Error");
-        }
+
+        setMessage("Error");
+
       } finally {
         setLoading(false);
       }
