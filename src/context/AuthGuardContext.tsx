@@ -29,7 +29,7 @@ const roleRedirects: Record<UserRole, string> = {
 };
 
 const restrictedPages: Record<UserRole, string[]> = {
-  4: ["/dashboard", "/usermanagement"],
+  4: ["/dashboard", "/usermanagement", "/profiles/[userId]"],
   2: ["/appointments"],
   1: [
     "/",
@@ -55,6 +55,7 @@ const restrictedPages: Record<UserRole, string[]> = {
     "/promotionmanagement",
     "/reportmanagement",
     "/servicemanagement",
+    "/profiles/[userId]",
   ],
 };
 
@@ -116,7 +117,8 @@ export function AuthGuardProvider({ children }: PropsWithChildren) {
       const dynamicRoutePattern = route
         .replace("[vehicleId]", "[0-9]+")
         .replace("[promotionId]", "[0-9]+")
-        .replace("[serviceId]", "[0-9]+");
+        .replace("[serviceId]", "[0-9]+")
+        .replace("[userId]", "[0-9]+");
 
       const regex = new RegExp(`^${dynamicRoutePattern}$`);
 

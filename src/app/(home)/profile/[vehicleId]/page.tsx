@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -58,11 +57,11 @@ const AppointmentVehicle = () => {
         );
         window.location.href = paymentResponse.data.url;
       } else {
-        alert("Không tìm thấy hóa đơn cho cuộc hẹn này.");
+        alert("No invoice found for this appointment.");
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý thanh toán:", error);
-      alert("Có lỗi xảy ra khi thanh toán.");
+      console.error("Error process payment:", error);
+      alert("Error when execute payment.");
     }
   };
 
@@ -132,7 +131,7 @@ const AppointmentVehicle = () => {
                     className="mt-4"
                     onClick={() => handlePayment(appointment.appointmentId)}
                   >
-                    Thanh toán
+                    Payment
                   </Button>
                 )}
               </Card>
