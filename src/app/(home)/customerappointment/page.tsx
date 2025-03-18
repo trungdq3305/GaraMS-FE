@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { getAppointmentsByCustomer } from "@/dbUtils/appointmentAPIs/appointment";
 import Link from "next/link";
-import axios from "axios";
+import axiosInstance from "@/dbUtils/axios";
 import { motion } from "framer-motion";
 import {
   Card,
@@ -118,14 +118,14 @@ const Appointments = () => {
 
   const handlePayment = async (appointmentId: number) => {
     try {
-      const iidResponse = await axios.get(
-        `https://localhost:7102/api/invoices/iid-by-aid?aid=${appointmentId}`
+      const iidResponse = await axiosInstance.get(
+        `invoices/iid-by-aid?aid=${appointmentId}`
       );
       const iid = iidResponse.data;
 
       if (iid) {
-        const paymentResponse = await axios.post(
-          `https://localhost:7102/api/invoices/pay-single-invoice/${iid}`
+        const paymentResponse = await axiosInstance.post(
+          `invoices/pay-single-invoice/${iid}`
         );
         window.location.href = paymentResponse.data.url;
       } else {
@@ -282,9 +282,9 @@ const Appointments = () => {
                     </Tag>
                   </div>
                 }
-                // extra={
-                //   <Text type="secondary">{formatDate(appointment.date)}</Text>
-                // }
+              // extra={
+              //   <Text type="secondary">{formatDate(appointment.date)}</Text>
+              // }
               >
                 <Space direction="vertical" className="w-full">
                   <div className="flex items-center">

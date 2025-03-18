@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://localhost:7102/api/",
+  baseURL: "https://garamsapi.lemoncliff-682dfe26.southeastasia.azurecontainerapps.io/api/",
   headers: {
     "Content-Type": "application/json",
     "Accept": "*/*",
@@ -13,7 +13,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   async (config) => {
     const token = localStorage.getItem("token");
-    
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
