@@ -41,7 +41,7 @@ const ProfilePage = () => {
         createdAt: user?.createdAt ?? new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+
       setUser(updatedUser);
       message.success("Cập nhật hồ sơ thành công!");
     } catch {
