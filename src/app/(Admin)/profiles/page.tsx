@@ -37,6 +37,7 @@ const ProfilePage = () => {
         role: user?.role ?? 0,
         status: user?.status ?? false,
         address: user?.address ?? "",
+        fullName: profile.name ?? user?.fullName ?? "",
         createdAt: user?.createdAt ?? new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
