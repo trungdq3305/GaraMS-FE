@@ -172,7 +172,7 @@ export default function Footer() {
           </Link>
         </div>
       </div>
-      <div className="mt-8 w-full bg-zinc-300 min-h-[18px] max-md:max-w-full" />
+
     </div>
   );
 }
