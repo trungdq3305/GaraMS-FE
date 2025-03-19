@@ -16,7 +16,7 @@ export default function RootLayout({
   return (
     <div>
       <Navbar></Navbar>
-      <main className="container mx-auto p-4" style={{ maxWidth: "100%" }}>
+      <main >
         {children}
       </main>
       <Footer></Footer>
