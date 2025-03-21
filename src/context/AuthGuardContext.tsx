@@ -55,6 +55,7 @@ const restrictedPages: Record<UserRole, string[]> = {
     "/promotionmanagement",
     "/reportmanagement",
     "/servicemanagement",
+    "/warrantymanagement",
     "/profiles/[userId]",
   ],
 };
