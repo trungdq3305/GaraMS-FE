@@ -65,9 +65,7 @@ const Vehicles = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">
-        Vehicle Information
-      </h2>
+      
 
       {vehicles.length === 0 ? (
         <div className="p-6 flex flex-col justify-center items-center min-h-[50vh]">

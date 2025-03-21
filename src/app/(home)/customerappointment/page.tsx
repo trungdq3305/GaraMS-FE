@@ -212,15 +212,7 @@ const Appointments = () => {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <Title level={2} className="text-center mb-6">
-          My Appointments
-        </Title>
-      </motion.div>
+      
 
       <motion.div
         initial={{ opacity: 0 }}
