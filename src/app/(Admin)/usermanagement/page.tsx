@@ -98,7 +98,7 @@ const UserManagementPage = () => {
   const handleEditClick = (user: UserData) => {
     setEditingUser(user);
     editForm.setFieldsValue({
-      username: user.username,
+      phone: user.phoneNumber,
       email: user.email,
       fullName: user.fullName,
       address: user.address,
@@ -117,7 +117,7 @@ const UserManagementPage = () => {
       const values = await editForm.validateFields();
       if (editingUser) {
         await updateUser(editingUser.userId, {
-          userName: values.username,
+          phone: values.phone,
           email: values.email,
           fullName: values.fullName,
           address: values.address,
@@ -276,13 +276,7 @@ const UserManagementPage = () => {
         ]}
       >
         <Form form={editForm} layout="vertical">
-          <Form.Item
-            label="Username"
-            name="username"
-            rules={[{ required: true, message: "Please enter the username" }]}
-          >
-            <Input placeholder="Enter username" />
-          </Form.Item>
+          
 
           <Form.Item
             label="Full Name"
@@ -303,11 +297,19 @@ const UserManagementPage = () => {
             <Input placeholder="Enter email" />
           </Form.Item>
           <Form.Item
+            label="Phone"
+            name="phone"
+            rules={[{ required: true, message: "Please enter the Phone number" }]}
+          >
+            <Input placeholder="Enter phone number" />
+          </Form.Item>
+          <Form.Item
             label="Address"
             name="address"
           >
             <Input.TextArea placeholder="Enter address" rows={3} />
           </Form.Item>
+          
         </Form>
       </Modal>
 
