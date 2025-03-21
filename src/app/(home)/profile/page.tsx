@@ -4,12 +4,13 @@ import React, { useState, FormEvent } from "react";
 import Vehicles from "../vehicle/page";
 import Appointments from "../customerappointment/page";
 import useAuthStore from "@/app/login/hooks/useAuthStore";
-import { User, Car, Calendar, Mail, Phone, MapPin, Lock } from "lucide-react";
+import { User, Car, Calendar, Mail, Phone, MapPin, Lock, Edit, Check, X } from "lucide-react";
 import axiosInstance from "@/dbUtils/axios";
+
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
 
   // Password change states
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -21,6 +22,17 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
+
+  // Profile edit states
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({
+    fullName: user?.fullName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
+    address: user?.address || ""
+  });
+  const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
+  const [profileUpdateError, setProfileUpdateError] = useState("");
 
   const handleRequestCode = async () => {
     try {
@@ -59,7 +71,7 @@ const Profile = () => {
       setIsLoading(true);
 
       const response = await axiosInstance.put("user/change-password", {
-        oldPassword: oldPassword, // Thêm trường nhập oldPassword vào form
+        oldPassword: oldPassword,
         newPassword: newPassword,
         confirmationCode: code,
       });
@@ -71,7 +83,7 @@ const Profile = () => {
         setCode("");
         setNewPassword("");
         setConfirmPassword("");
-        setOldPassword(""); // Reset old password input
+        setOldPassword("");
         setSuccessMessage("");
       }, 2000);
     } catch (error) {
@@ -82,18 +94,78 @@ const Profile = () => {
     }
   };
 
-
   const closeModal = () => {
     setShowPasswordModal(false);
     setIsCodeRequested(false);
     setCode("");
     setNewPassword("");
     setConfirmPassword("");
-    setOldPassword(""); // Reset oldPassword
+    setOldPassword("");
     setErrorMessage("");
     setSuccessMessage("");
   };
 
+  // Handle edit profile functions
+  const handleEditToggle = () => {
+    if (isEditing) {
+      // Cancel editing - reset to original values
+      setEditedUser({
+        fullName: user?.fullName || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        address: user?.address || ""
+      });
+    }
+    setIsEditing(!isEditing);
+    setProfileUpdateMessage("");
+    setProfileUpdateError("");
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditedUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSaveProfile = async () => {
+    try {
+      setIsLoading(true);
+      setProfileUpdateError("");
+      
+      // Call API to update user profile
+      await axiosInstance.put("user/edit-user", {
+        phone: editedUser.phone,
+        email: editedUser.email,
+        fullName: editedUser.fullName,
+        address: editedUser.address
+      });
+      
+      // Update local state - properly handling the User type
+      if (user) {
+        setUser({
+          ...user,
+          fullName: editedUser.fullName,
+          email: editedUser.email,
+          phone: editedUser.phone,
+          address: editedUser.address
+        });
+      }
+      
+      setProfileUpdateMessage("Profile updated successfully");
+      setIsEditing(false);
+      
+      setTimeout(() => {
+        setProfileUpdateMessage("");
+      }, 3000);
+    } catch (error) {
+      setProfileUpdateError("Failed to update profile. Please try again.");
+      console.error("Error updating profile:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
@@ -134,23 +206,76 @@ const Profile = () => {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-6 pb-2 border-b border-gray-200">
             <h2 className="text-2xl font-bold">Profile Information</h2>
-            <button
-              onClick={() => setShowPasswordModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
-            >
-              <Lock size={18} />
-              Change Password
-            </button>
+            <div className="flex gap-3">
+              {isEditing ? (
+                <>
+                  <button
+                    onClick={handleSaveProfile}
+                    disabled={isLoading}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors disabled:bg-green-300"
+                  >
+                    <Check size={18} />
+                    Save
+                  </button>
+                  <button
+                    onClick={handleEditToggle}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+                  >
+                    <X size={18} />
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleEditToggle}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                  >
+                    <Edit size={18} />
+                    Edit Profile
+                  </button>
+                  <button
+                    onClick={() => setShowPasswordModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition-colors"
+                  >
+                    <Lock size={18} />
+                    Change Password
+                  </button>
+                </>
+              )}
+            </div>
           </div>
+
+          {profileUpdateMessage && (
+            <div className="mb-4 p-2 bg-green-100 text-green-700 rounded">
+              {profileUpdateMessage}
+            </div>
+          )}
+
+          {profileUpdateError && (
+            <div className="mb-4 p-2 bg-red-100 text-red-700 rounded">
+              {profileUpdateError}
+            </div>
+          )}
 
           <div className="grid md:grid-cols-2 gap-6">
             <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-lg">
               <div className="bg-blue-100 p-3 rounded-full">
                 <User className="text-blue-500" size={24} />
               </div>
-              <div>
+              <div className="flex-grow">
                 <p className="text-sm text-gray-500">Full Name</p>
-                <p className="font-medium text-lg">{user?.fullName || "Not provided"}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={editedUser.fullName}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="font-medium text-lg">{user?.fullName || "Not provided"}</p>
+                )}
               </div>
             </div>
 
@@ -158,9 +283,19 @@ const Profile = () => {
               <div className="bg-green-100 p-3 rounded-full">
                 <Mail className="text-green-500" size={24} />
               </div>
-              <div>
+              <div className="flex-grow">
                 <p className="text-sm text-gray-500">Email Address</p>
-                <p className="font-medium text-lg">{user?.email || "Not provided"}</p>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={editedUser.email}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="font-medium text-lg">{user?.email || "Not provided"}</p>
+                )}
               </div>
             </div>
 
@@ -168,9 +303,19 @@ const Profile = () => {
               <div className="bg-purple-100 p-3 rounded-full">
                 <Phone className="text-purple-500" size={24} />
               </div>
-              <div>
+              <div className="flex-grow">
                 <p className="text-sm text-gray-500">Phone Number</p>
-                <p className="font-medium text-lg">{user?.phone || "Not provided"}</p>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={editedUser.phone}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="font-medium text-lg">{user?.phone || "Not provided"}</p>
+                )}
               </div>
             </div>
 
@@ -178,9 +323,19 @@ const Profile = () => {
               <div className="bg-amber-100 p-3 rounded-full">
                 <MapPin className="text-amber-500" size={24} />
               </div>
-              <div>
+              <div className="flex-grow">
                 <p className="text-sm text-gray-500">Address</p>
-                <p className="font-medium text-lg">{user?.address || "Not provided"}</p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="address"
+                    value={editedUser.address}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  />
+                ) : (
+                  <p className="font-medium text-lg">{user?.address || "Not provided"}</p>
+                )}
               </div>
             </div>
           </div>
