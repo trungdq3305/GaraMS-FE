@@ -8,13 +8,14 @@ export const getUsers = async () => {
 };
 
 export const updateUser = async (id: number, userData: {
-    userName: string;
+    phone: string;
     email: string;
     fullName: string;
     address: string;
 }) => {
     try {
         const response = await axiosInstance.put(`/user/get-all?id=${id}`, userData);
+        console.log(response.data)
         return response.data;
     } catch (error) {
         console.error("Error updating user:", error);
