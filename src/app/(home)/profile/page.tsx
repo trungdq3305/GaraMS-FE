@@ -2,6 +2,7 @@
 
 import React, { useState, FormEvent } from "react";
 import Vehicles from "../vehicle/page";
+import WarrantyHistory from "../warrantyhistory/page";
 import Appointments from "../customerappointment/page";
 import useAuthStore from "@/app/login/hooks/useAuthStore";
 import { User, Car, Calendar, Mail, Phone, MapPin, Lock, Edit, Check, X } from "lucide-react";
@@ -200,6 +201,16 @@ const Profile = () => {
           <Calendar size={18} />
           Appointments
         </button>
+        <button
+          onClick={() => setActiveTab("warrantyhistory")}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${activeTab === "warrantyhistory"
+            ? "bg-blue-500 text-white shadow-md"
+            : "bg-gray-200 hover:bg-gray-300"
+            }`}
+        >
+          <Calendar size={18} />
+          Warranty History
+        </button>
       </div>
 
       {activeTab === "profile" && (
@@ -344,7 +355,7 @@ const Profile = () => {
 
       {activeTab === "vehicles" && <Vehicles />}
       {activeTab === "appointments" && <Appointments />}
-
+      {activeTab === "warrantyhistory" && <WarrantyHistory />}
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
