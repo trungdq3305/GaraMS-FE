@@ -310,7 +310,12 @@ export default function ServiceDetailPage() {
           <Button
             icon={<ArrowLeftOutlined />}
             type="link"
-            style={{ padding: 0, paddingBottom: 20, fontSize: 16 }}
+            style={{
+              padding: 0,
+              paddingBottom: 30,
+              paddingTop: 19,
+              fontSize: 16,
+            }}
           >
             Back to Services
           </Button>
@@ -403,20 +408,20 @@ export default function ServiceDetailPage() {
                     Created On:{" "}
                     <Text>{dayjs(service.createdAt).format("DD/MM/YYYY")}</Text>
                   </p>
-                  <p>
+                  {/* <p>
                     Category ID: <Text>{service.categoryId}</Text>
-                  </p>
+                  </p> */}
                 </Card>
               </Col>
             </Row>
 
-            <div className="flex justify-center mt-6">
+            {/* <div className="flex justify-center mt-6">
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <Button type="primary" size="large">
                   Book This Service
                 </Button>
               </motion.div>
-            </div>
+            </div> */}
           </Card>
         </motion.div>
       )}
