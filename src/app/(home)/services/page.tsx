@@ -55,20 +55,42 @@ export default function ServicesPage() {
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await getServices();
-        if (response.isSuccess && response.data) {
-          setServices(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching services:", error);
-      }
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const fetchServices = async () => {
+  //     try {
+  //       const response = await getServices();
+  //       if (response.isSuccess && response.data) {
+  //         setServices(response.data);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching services:", error);
+  //     }
+  //     setLoading(false);
+  //   };
 
+  //   fetchServices();
+  // }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await getServices();
+      if (response.isSuccess && response.data) {
+        setServices(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchServices();
+
+    const intervalId = setInterval(() => {
+      fetchServices();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const defaultImage =
