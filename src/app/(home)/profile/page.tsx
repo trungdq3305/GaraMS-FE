@@ -5,9 +5,19 @@ import Vehicles from "../vehicle/page";
 import WarrantyHistory from "../warrantyhistory/page";
 import Appointments from "../customerappointment/page";
 import useAuthStore from "@/app/login/hooks/useAuthStore";
-import { User, Car, Calendar, Mail, Phone, MapPin, Lock, Edit, Check, X } from "lucide-react";
+import {
+  User,
+  Car,
+  Calendar,
+  Mail,
+  Phone,
+  MapPin,
+  Lock,
+  Edit,
+  Check,
+  X,
+} from "lucide-react";
 import axiosInstance from "@/dbUtils/axios";
-
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -30,7 +40,7 @@ const Profile = () => {
     fullName: user?.fullName || "",
     email: user?.email || "",
     phone: user?.phone || "",
-    address: user?.address || ""
+    address: user?.address || "",
   });
   const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
   const [profileUpdateError, setProfileUpdateError] = useState("");
@@ -41,7 +51,7 @@ const Profile = () => {
       setErrorMessage("");
 
       await axiosInstance.post("user/request-change-password", {
-        email: user?.email
+        email: user?.email,
       });
 
       setIsCodeRequested(true);
@@ -88,7 +98,9 @@ const Profile = () => {
         setSuccessMessage("");
       }, 2000);
     } catch (error) {
-      setErrorMessage("Failed to change password. Please check your old password and code.");
+      setErrorMessage(
+        "Failed to change password. Please check your old password and code."
+      );
       console.error("Error changing password:", error);
     } finally {
       setIsLoading(false);
@@ -114,7 +126,7 @@ const Profile = () => {
         fullName: user?.fullName || "",
         email: user?.email || "",
         phone: user?.phone || "",
-        address: user?.address || ""
+        address: user?.address || "",
       });
     }
     setIsEditing(!isEditing);
@@ -124,9 +136,9 @@ const Profile = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setEditedUser(prev => ({
+    setEditedUser((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -134,15 +146,15 @@ const Profile = () => {
     try {
       setIsLoading(true);
       setProfileUpdateError("");
-      
+
       // Call API to update user profile
       await axiosInstance.put("user/edit-user", {
         phone: editedUser.phone,
         email: editedUser.email,
         fullName: editedUser.fullName,
-        address: editedUser.address
+        address: editedUser.address,
       });
-      
+
       // Update local state - properly handling the User type
       if (user) {
         setUser({
@@ -150,13 +162,13 @@ const Profile = () => {
           fullName: editedUser.fullName,
           email: editedUser.email,
           phone: editedUser.phone,
-          address: editedUser.address
+          address: editedUser.address,
         });
       }
-      
+
       setProfileUpdateMessage("Profile updated successfully");
       setIsEditing(false);
-      
+
       setTimeout(() => {
         setProfileUpdateMessage("");
       }, 3000);
@@ -173,40 +185,44 @@ const Profile = () => {
       <div className="flex space-x-4 mb-8">
         <button
           onClick={() => setActiveTab("profile")}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${activeTab === "profile"
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "profile"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           <User size={18} />
           Profile
         </button>
         <button
           onClick={() => setActiveTab("vehicles")}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${activeTab === "vehicles"
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "vehicles"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           <Car size={18} />
           Vehicles
         </button>
         <button
           onClick={() => setActiveTab("appointments")}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${activeTab === "appointments"
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "appointments"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           <Calendar size={18} />
           Appointments
         </button>
         <button
           onClick={() => setActiveTab("warrantyhistory")}
-          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${activeTab === "warrantyhistory"
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-200 hover:bg-gray-300"
-            }`}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "warrantyhistory"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
         >
           <Calendar size={18} />
           Warranty History
@@ -285,7 +301,9 @@ const Profile = () => {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 ) : (
-                  <p className="font-medium text-lg">{user?.fullName || "Not provided"}</p>
+                  <p className="font-medium text-lg">
+                    {user?.fullName || "Not provided"}
+                  </p>
                 )}
               </div>
             </div>
@@ -305,7 +323,9 @@ const Profile = () => {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 ) : (
-                  <p className="font-medium text-lg">{user?.email || "Not provided"}</p>
+                  <p className="font-medium text-lg">
+                    {user?.email || "Not provided"}
+                  </p>
                 )}
               </div>
             </div>
@@ -325,7 +345,9 @@ const Profile = () => {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 ) : (
-                  <p className="font-medium text-lg">{user?.phone || "Not provided"}</p>
+                  <p className="font-medium text-lg">
+                    {user?.phone || "Not provided"}
+                  </p>
                 )}
               </div>
             </div>
@@ -345,7 +367,9 @@ const Profile = () => {
                     className="w-full p-2 border border-gray-300 rounded-md"
                   />
                 ) : (
-                  <p className="font-medium text-lg">{user?.address || "Not provided"}</p>
+                  <p className="font-medium text-lg">
+                    {user?.address || "Not provided"}
+                  </p>
                 )}
               </div>
             </div>
@@ -372,7 +396,10 @@ const Profile = () => {
 
             {!isCodeRequested ? (
               <div>
-                <p className="mb-4">Click the button below to receive a verification code via email.</p>
+                <p className="mb-4">
+                  Click the button below to receive a verification code via
+                  email.
+                </p>
                 <button
                   onClick={handleRequestCode}
                   disabled={isLoading}

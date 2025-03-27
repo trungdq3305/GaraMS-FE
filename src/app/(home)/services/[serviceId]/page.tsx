@@ -266,34 +266,71 @@ export default function ServiceDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchServiceDetail = async () => {
-      try {
-        const serviceId = params.serviceId;
-        if (!serviceId) {
-          setError("Service ID not found");
-          setLoading(false);
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchServiceDetail = async () => {
+  //     try {
+  //       const serviceId = params.serviceId;
+  //       if (!serviceId) {
+  //         setError("Service ID not found");
+  //         setLoading(false);
+  //         return;
+  //       }
 
-        const response: ApiResponse = await getServiceById(
-          parseInt(serviceId as string)
-        );
+  //       const response: ApiResponse = await getServiceById(
+  //         parseInt(serviceId as string)
+  //       );
 
-        if (response.isSuccess && response.data) {
-          setService(response.data);
-        } else {
-          setError(response.message || "Failed to fetch service details");
-        }
+  //       if (response.isSuccess && response.data) {
+  //         setService(response.data);
+  //       } else {
+  //         setError(response.message || "Failed to fetch service details");
+  //       }
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching service details:", error);
+  //       setError("An error occurred while fetching service details");
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchServiceDetail();
+  // }, [params.serviceId]);
+
+  const fetchServiceDetail = async () => {
+    try {
+      const serviceId = params.serviceId;
+      if (!serviceId) {
+        setError("Service ID not found");
         setLoading(false);
-      } catch (error) {
-        console.error("Error fetching service details:", error);
-        setError("An error occurred while fetching service details");
-        setLoading(false);
+        return;
       }
-    };
 
+      const response: ApiResponse = await getServiceById(
+        parseInt(serviceId as string)
+      );
+
+      if (response.isSuccess && response.data) {
+        setService(response.data);
+      } else {
+        setError(response.message || "Failed to fetch service details");
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching service details:", error);
+      setError("An error occurred while fetching service details");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchServiceDetail();
+
+    const intervalId = setInterval(() => {
+      fetchServiceDetail();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.serviceId]);
 
   const defaultImage =

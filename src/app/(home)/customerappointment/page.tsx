@@ -450,58 +450,58 @@ const Appointments = () => {
   const [error, setError] = useState<Error | null>(null);
   const [activeTab, setActiveTab] = useState("All");
 
-  useEffect(() => {
-    const fetchAppointmentsAndInvoices = async () => {
-      try {
-        setIsLoading(true);
-        const response =
-          (await getAppointmentsByCustomer()) as AppointmentResponse;
+  // useEffect(() => {
+  //   const fetchAppointmentsAndInvoices = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const response =
+  //         (await getAppointmentsByCustomer()) as AppointmentResponse;
 
-        if (response.isSuccess && response.data) {
-          const appointmentsData = Array.isArray(response.data)
-            ? response.data
-            : [response.data];
-          setAppointments(appointmentsData);
+  //       if (response.isSuccess && response.data) {
+  //         const appointmentsData = Array.isArray(response.data)
+  //           ? response.data
+  //           : [response.data];
+  //         setAppointments(appointmentsData);
 
-          // Fetch invoices for Paid and Complete appointments
-          const paidCompleteAppointments = appointmentsData.filter((appt) =>
-            ["Paid", "Complete"].includes(appt.status)
-          );
+  //         // Fetch invoices for Paid and Complete appointments
+  //         const paidCompleteAppointments = appointmentsData.filter((appt) =>
+  //           ["Paid", "Complete"].includes(appt.status)
+  //         );
 
-          const invoicePromises = paidCompleteAppointments.map(async (appt) => {
-            try {
-              const invoiceResponse = await axiosInstance.get(
-                `invoices/by-appointment/${appt.appointmentId}`
-              );
-              return { [appt.appointmentId]: invoiceResponse.data.totalAmount };
-            } catch (err) {
-              console.error(
-                `Failed to fetch invoice for appointment ${appt.appointmentId}:`,
-                err
-              );
-              return { [appt.appointmentId]: null };
-            }
-          });
+  //         const invoicePromises = paidCompleteAppointments.map(async (appt) => {
+  //           try {
+  //             const invoiceResponse = await axiosInstance.get(
+  //               `invoices/by-appointment/${appt.appointmentId}`
+  //             );
+  //             return { [appt.appointmentId]: invoiceResponse.data.totalAmount };
+  //           } catch (err) {
+  //             console.error(
+  //               `Failed to fetch invoice for appointment ${appt.appointmentId}:`,
+  //               err
+  //             );
+  //             return { [appt.appointmentId]: null };
+  //           }
+  //         });
 
-          const invoiceResults = await Promise.all(invoicePromises);
-          const invoiceMap = Object.assign({}, ...invoiceResults);
-          setInvoices(invoiceMap);
-        } else {
-          setError(
-            new Error(response.message || "Failed to fetch appointments")
-          );
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error ? err : new Error("An unknown error occurred")
-        );
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  //         const invoiceResults = await Promise.all(invoicePromises);
+  //         const invoiceMap = Object.assign({}, ...invoiceResults);
+  //         setInvoices(invoiceMap);
+  //       } else {
+  //         setError(
+  //           new Error(response.message || "Failed to fetch appointments")
+  //         );
+  //       }
+  //     } catch (err) {
+  //       setError(
+  //         err instanceof Error ? err : new Error("An unknown error occurred")
+  //       );
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchAppointmentsAndInvoices();
-  }, []);
+  //   fetchAppointmentsAndInvoices();
+  // }, []);
 
   // const handlePayment = async (appointmentId: number) => {
   //   try {
@@ -523,6 +523,67 @@ const Appointments = () => {
   //     alert("Error when execute payment.");
   //   }
   // };
+
+  const fetchAppointmentsAndInvoices = async () => {
+    try {
+      setIsLoading(true);
+      const response =
+        (await getAppointmentsByCustomer()) as AppointmentResponse;
+
+      if (response.isSuccess && response.data) {
+        const appointmentsData = Array.isArray(response.data)
+          ? response.data
+          : [response.data];
+        setAppointments(appointmentsData);
+
+        // Fetch invoices cho các appointment có trạng thái Paid hoặc Complete
+        const paidCompleteAppointments = appointmentsData.filter((appt) =>
+          ["Paid", "Complete"].includes(appt.status)
+        );
+
+        const invoicePromises = paidCompleteAppointments.map(async (appt) => {
+          try {
+            const invoiceResponse = await axiosInstance.get(
+              `invoices/by-appointment/${appt.appointmentId}`
+            );
+            return { [appt.appointmentId]: invoiceResponse.data.totalAmount };
+          } catch (err) {
+            console.error(
+              `Failed to fetch invoice for appointment ${appt.appointmentId}:`,
+              err
+            );
+            return { [appt.appointmentId]: null };
+          }
+        });
+
+        const invoiceResults = await Promise.all(invoicePromises);
+        const invoiceMap = Object.assign({}, ...invoiceResults);
+        setInvoices(invoiceMap);
+      } else {
+        setError(new Error(response.message || "Failed to fetch appointments"));
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err : new Error("An unknown error occurred")
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // useEffect để fetch lần đầu và thiết lập polling
+  useEffect(() => {
+    // Fetch lần đầu khi component mount
+    fetchAppointmentsAndInvoices();
+
+    // Thiết lập polling mỗi 10 giây để refetch dữ liệu
+    const intervalId = setInterval(() => {
+      fetchAppointmentsAndInvoices();
+    }, 10000); // 10 giây = 10000ms
+
+    // Cleanup interval khi component unmount
+    return () => clearInterval(intervalId);
+  }, []);
 
   const handlePayment = async (appointmentId: number) => {
     try {
