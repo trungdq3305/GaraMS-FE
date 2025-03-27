@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { getInventories } from "@/dbUtils/ManagerAPIs/inventoryService";
+import { addInventoryToCart } from "@/dbUtils/ManagerAPIs/cartService";
 import Link from "next/link";
-import { Card, Row, Col, Button, Spin, Typography, Badge } from "antd";
+import { Card, Row, Col, Button, Spin, Typography, Badge, message } from "antd";
 
 const { Text, Title } = Typography;
 
@@ -38,25 +39,6 @@ export default function InventoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   const fetchInventories = async () => {
-  //     try {
-  //       const response = await getInventories();
-  //       if (response.isSuccess && response.data) {
-  //         setInventories(response.data);
-  //       } else {
-  //         setError(response.message || "Failed to fetch inventories");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching inventories:", error);
-  //       setError("An error occurred while fetching inventories");
-  //     }
-  //     setLoading(false);
-  //   };
-
-  //   fetchInventories();
-  // }, []);
-
   const fetchInventories = async () => {
     try {
       const response = await getInventories();
@@ -81,6 +63,18 @@ export default function InventoriesPage() {
 
     return () => clearInterval(intervalId);
   }, []);
+
+  const handleAddToCart = async (inventoryId: number) => {
+    try {
+      const response = await addInventoryToCart(inventoryId);
+      
+        message.success("Item added to cart successfully");
+        window.location.reload();
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      message.error("An error occurred while adding item to cart");
+    }
+  };
 
   const defaultImage =
     "https://www.kbb.com/wp-content/uploads/2021/08/car-maintenance-guide.jpeg";
@@ -135,7 +129,7 @@ export default function InventoriesPage() {
                         />
                       </div>
                     }
-                    className="rounded-lg shadow-lg border-none bg-white transition-all duration-300 hover:shadow-xl flex flex-col h-[400px]"
+                    className="rounded-lg shadow-lg border-none bg-white transition-all duration-300 hover:shadow-xl flex flex-col h-[450px]"
                   >
                     <div className="flex flex-col flex-grow">
                       <h3 className="text-xl font-semibold text-gray-800 truncate">
@@ -149,16 +143,25 @@ export default function InventoriesPage() {
                           {inventory.inventoryPrice} $
                         </span>
                       </div>
-                      <div className="mt-5">
+                      <div className="mt-5 space-y-2">
                         <Link href={`/inventories/${inventory.inventoryId}`}>
                           <Button
-                            type="primary"
+                            type="default"
                             block
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg py-2"
+                            className="rounded-lg py-2"
                           >
                             View Details
                           </Button>
                         </Link>
+                        <Button
+                          type="primary"
+                          block
+                          disabled={!inventory.status}
+                          onClick={() => handleAddToCart(inventory.inventoryId)}
+                          className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-lg py-2"
+                        >
+                          Add to Cart
+                        </Button>
                       </div>
                     </div>
                   </Card>

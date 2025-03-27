@@ -392,7 +392,7 @@ export default function HomePage() {
 
           <div className="text-center mt-12">
             <a
-              href="/inventorymanagement"
+              href="/inventories"
               className="inline-block bg-blue-100 hover:bg-blue-200 text-blue-700 px-8 py-3 rounded-full text-lg font-medium transition-all duration-300"
             >
               View All Inventory
