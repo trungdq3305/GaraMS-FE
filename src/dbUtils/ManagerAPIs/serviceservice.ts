@@ -13,10 +13,10 @@ export const getServiceById = async (serviceId: number) => {
 export const addService = async (serviceData: {
   serviceId: number;
   serviceName: string;
-  price: number;
+  servicePrice: number;
   description: string;
+  warrantyPeriod: number;
 }) => {
-  console.log(serviceData);
   const response = await axiosInstance.post("service/service", serviceData);
   return response.data;
 };
@@ -26,8 +26,9 @@ export const updateService = async (
   serviceData: {
     serviceId: number;
     serviceName: string;
-    price: number;
+    servicePrice: number;
     description: string;
+    warrantyPeriod: number;
   }
 ) => {
   const response = await axiosInstance.put(

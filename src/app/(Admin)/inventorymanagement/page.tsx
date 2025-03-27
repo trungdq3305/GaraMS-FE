@@ -25,7 +25,7 @@ interface InventoryData {
     name: string;
     description: string;
     unit: string;
-    price: number;
+    inventoryPrice: number;
     status: boolean;
     createdAt: string;
 }
@@ -102,7 +102,7 @@ const InventoryAndSupplierManagementPage = () => {
                 name: item.name,
                 description: item.description,
                 unit: item.unit,
-                price: item.price,
+                inventoryPrice: item.inventoryPrice,
                 status: item.status,
                 createdAt: moment(item.createdAt).format("DD/MM/YYYY HH:mm"),
             }));
@@ -119,7 +119,7 @@ const InventoryAndSupplierManagementPage = () => {
         setEditingInventory(inventory);
         editInventoryForm.setFieldsValue({
             name: inventory.name,
-            price: inventory.price,
+            inventoryPrice: inventory.inventoryPrice,
             description: inventory.description,
             unit: inventory.unit,
             status: inventory.status,
@@ -135,7 +135,7 @@ const InventoryAndSupplierManagementPage = () => {
                     name: values.name,
                     description: values.description,
                     unit: values.unit,
-                    price: parseFloat(values.price),
+                    inventoryPrice: parseFloat(values.inventoryPrice),
                     status: values.status,
                 });
                 message.success("Inventory item updated successfully!");
@@ -195,7 +195,7 @@ const InventoryAndSupplierManagementPage = () => {
         { title: "Name", dataIndex: "name", key: "name", ...getInventoryColumnSearchProps("name") },
         { title: "Description", dataIndex: "description", key: "description" },
         { title: "Unit", dataIndex: "unit", key: "unit" },
-        { title: "Price", dataIndex: "price", key: "price", sorter: (a, b) => a.price - b.price },
+        { title: "Price", dataIndex: "inventoryPrice", key: "inventoryPrice", sorter: (a, b) => a.inventoryPrice - b.inventoryPrice },
         {
             title: "Status",
             dataIndex: "status",
@@ -212,20 +212,20 @@ const InventoryAndSupplierManagementPage = () => {
             }
         },
         { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
-        {
-            title: "Actions",
-            key: "actions",
-            render: (_, record) => (
-                <Space>
-                    <Button icon={<EditOutlined />} onClick={() => handleEditInventoryClick(record)}>
-                        Edit
-                    </Button>
-                    <Button danger onClick={() => handleDeleteInventory(record.inventoryId)}>
-                        Delete
-                    </Button>
-                </Space>
-            ),
-        },
+        // {
+        //     title: "Actions",
+        //     key: "actions",
+        //     render: (_, record) => (
+        //         <Space>
+        //             <Button icon={<EditOutlined />} onClick={() => handleEditInventoryClick(record)}>
+        //                 Edit
+        //             </Button>
+        //             <Button danger onClick={() => handleDeleteInventory(record.inventoryId)}>
+        //                 Delete
+        //             </Button>
+        //         </Space>
+        //     ),
+        // },
         {
             title: "Assign",
             key: "actions",
@@ -256,7 +256,7 @@ const InventoryAndSupplierManagementPage = () => {
                 name: values.name,
                 description: values.description,
                 unit: values.unit,
-                price: parseFloat(values.price),
+                inventoryPrice: parseFloat(values.inventoryPrice),
                 status: values.status,
             });
             message.success("Inventory item added successfully!");
@@ -548,7 +548,7 @@ const InventoryAndSupplierManagementPage = () => {
 
                     <Form.Item
                         label="Price"
-                        name="price"
+                        name="inventoryPrice"
                         rules={[
                             { required: true, message: "Please enter the price" },
                             { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
@@ -607,7 +607,7 @@ const InventoryAndSupplierManagementPage = () => {
 
                     <Form.Item
                         label="Price"
-                        name="price"
+                        name="inventoryPrice"
                         rules={[
                             { required: true, message: "Please enter the price" },
                             { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
