@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import axios from "axios";
 import axiosInstance from "@/dbUtils/axios";
@@ -100,10 +99,14 @@ const useAuthStore = create<AuthState>((set) => {
       set({ user: null, token: null, error: null });
     },
 
-    setUser: (user) => set({ user }),
+    setUser: (user) => {
+      if (isClient) {
+        localStorage.setItem("user", JSON.stringify(user));
+      }
+      set({ user });
+    },
     setToken: (token) => set({ token }),
   };
 });
-
 
 export default useAuthStore;

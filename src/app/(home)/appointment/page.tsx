@@ -357,7 +357,6 @@ export default function AppointmentPage() {
   const { user } = useAuthStore();
   const { data: vehicleData } = useVehicle();
 
-  // Lấy thông tin người dùng từ localStorage
   useEffect(() => {
     const userInfo = localStorage.getItem("userInfo");
     if (userInfo) {
@@ -375,28 +374,58 @@ export default function AppointmentPage() {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await axiosInstance.get("service/services");
-        const services = response.data.data.map(
-          (service: any, index: number) => ({
-            id: service.serviceId || index + 1,
-            name: service.serviceName,
-            totalPrice: service.totalPrice,
-            description: service.description,
-          })
-        );
-        setServicesList(services);
-      } catch (err) {
-        setError("Failed to load services.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchServices = async () => {
+  //     try {
+  //       const response = await axiosInstance.get("service/services");
+  //       const services = response.data.data.map(
+  //         (service: any, index: number) => ({
+  //           id: service.serviceId || index + 1,
+  //           name: service.serviceName,
+  //           totalPrice: service.totalPrice,
+  //           description: service.description,
+  //         })
+  //       );
+  //       setServicesList(services);
+  //     } catch (err) {
+  //       setError("Failed to load services.");
+  //       console.error(err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
+  //   fetchServices();
+  // }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await axiosInstance.get("service/services");
+      const services = response.data.data.map(
+        (service: any, index: number) => ({
+          id: service.serviceId || index + 1,
+          name: service.serviceName,
+          totalPrice: service.totalPrice,
+          description: service.description,
+        })
+      );
+      setServicesList(services);
+    } catch (err) {
+      setError("Failed to load services.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchServices();
+
+    const intervalId = setInterval(() => {
+      fetchServices();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const handleServiceToggle = (service: Service) => {

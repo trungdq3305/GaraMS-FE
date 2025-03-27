@@ -38,23 +38,48 @@ export default function InventoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchInventories = async () => {
-      try {
-        const response = await getInventories();
-        if (response.isSuccess && response.data) {
-          setInventories(response.data);
-        } else {
-          setError(response.message || "Failed to fetch inventories");
-        }
-      } catch (error) {
-        console.error("Error fetching inventories:", error);
-        setError("An error occurred while fetching inventories");
-      }
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const fetchInventories = async () => {
+  //     try {
+  //       const response = await getInventories();
+  //       if (response.isSuccess && response.data) {
+  //         setInventories(response.data);
+  //       } else {
+  //         setError(response.message || "Failed to fetch inventories");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching inventories:", error);
+  //       setError("An error occurred while fetching inventories");
+  //     }
+  //     setLoading(false);
+  //   };
 
+  //   fetchInventories();
+  // }, []);
+
+  const fetchInventories = async () => {
+    try {
+      const response = await getInventories();
+      if (response.isSuccess && response.data) {
+        setInventories(response.data);
+      } else {
+        setError(response.message || "Failed to fetch inventories");
+      }
+    } catch (error) {
+      console.error("Error fetching inventories:", error);
+      setError("An error occurred while fetching inventories");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     fetchInventories();
+
+    const intervalId = setInterval(() => {
+      fetchInventories();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const defaultImage =

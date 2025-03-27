@@ -78,34 +78,71 @@ export default function InventoryDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchInventoryDetail = async () => {
-      try {
-        const inventoryId = params.inventoryId;
-        if (!inventoryId) {
-          setError("Inventory ID not found");
-          setLoading(false);
-          return;
-        }
+  // useEffect(() => {
+  //   const fetchInventoryDetail = async () => {
+  //     try {
+  //       const inventoryId = params.inventoryId;
+  //       if (!inventoryId) {
+  //         setError("Inventory ID not found");
+  //         setLoading(false);
+  //         return;
+  //       }
 
-        const response: ApiResponse = await getInventoryById(
-          parseInt(inventoryId as string)
-        );
+  //       const response: ApiResponse = await getInventoryById(
+  //         parseInt(inventoryId as string)
+  //       );
 
-        if (response.isSuccess && response.data) {
-          setInventory(response.data);
-        } else {
-          setError(response.message || "Failed to fetch inventory details");
-        }
+  //       if (response.isSuccess && response.data) {
+  //         setInventory(response.data);
+  //       } else {
+  //         setError(response.message || "Failed to fetch inventory details");
+  //       }
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching inventory details:", error);
+  //       setError("An error occurred while fetching inventory details");
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchInventoryDetail();
+  // }, [params.inventoryId]);
+
+  const fetchInventoryDetail = async () => {
+    try {
+      const inventoryId = params.inventoryId;
+      if (!inventoryId) {
+        setError("Inventory ID not found");
         setLoading(false);
-      } catch (error) {
-        console.error("Error fetching inventory details:", error);
-        setError("An error occurred while fetching inventory details");
-        setLoading(false);
+        return;
       }
-    };
 
+      const response: ApiResponse = await getInventoryById(
+        parseInt(inventoryId as string)
+      );
+
+      if (response.isSuccess && response.data) {
+        setInventory(response.data);
+      } else {
+        setError(response.message || "Failed to fetch inventory details");
+      }
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching inventory details:", error);
+      setError("An error occurred while fetching inventory details");
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchInventoryDetail();
+
+    const intervalId = setInterval(() => {
+      fetchInventoryDetail();
+    }, 10000);
+
+    return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.inventoryId]);
 
   const defaultImage =
