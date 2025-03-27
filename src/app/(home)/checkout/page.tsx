@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { 
   updateDeliveryType, 
-  updatePaymentMethod 
+  updatePaymentMethod,
+  initiatePayPalPayment // New import for PayPal payment initiation
 } from "@/dbUtils/ManagerAPIs/invoiceService";
 import { 
   getCartItems, 
@@ -106,12 +107,7 @@ export default function CheckoutPage() {
   const handleDeliveryTypeChange = async (type: 'Shipping' | 'AtStore') => {
     try {
       const response = await updateDeliveryType(type);
-      
-        setDeliveryType(type);
-        
-        // If AtStore is selected, navigate to success page directly
-        
-      
+      setDeliveryType(type);
     } catch (error) {
       console.error("Error updating delivery type:", error);
       message.error("An error occurred while updating delivery type");
@@ -121,20 +117,31 @@ export default function CheckoutPage() {
   const handlePaymentMethodChange = async (method: 'PayNow' | 'AtStore') => {
     try {
       const response = await updatePaymentMethod(method);
+      setPaymentMethod(method);
       
-        setPaymentMethod(method);
-        
-        // Navigate to success page if PayNow is selected
-        if (method === 'PayNow') {
-          router.push('/invoice/success');
+      // If PayNow is selected, initiate PayPal payment
+      if (method === 'PayNow') {
+        try {
+          // Call the API to initiate PayPal payment
+          const paypalResponse = await initiatePayPalPayment(cartTotal);
+          
+          // Check if the response contains a valid PayPal checkout URL
+          
+            // Redirect to PayPal checkout
+            window.location.href = paypalResponse;
+          
+        } catch (paypalError) {
+          console.error("PayPal checkout error:", paypalError);
+          message.error("Failed to initiate PayPal payment");
         }
-      
+      }
     } catch (error) {
       console.error("Error updating payment method:", error);
       message.error("An error occurred while updating payment method");
     }
   };
 
+  // Rest of the component remains the same (render method)
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -165,7 +172,6 @@ export default function CheckoutPage() {
           </div>
         </Card>
 
-        {/* Rest of the component remains the same */}
         <Card className="mb-6">
           <Title level={4}>Delivery Options</Title>
           <Radio.Group 
@@ -191,32 +197,30 @@ export default function CheckoutPage() {
           </Radio.Group>
         </Card>
 
-        
-          <Card>
-            <Title level={4}>Payment Method</Title>
-            <Radio.Group 
-              value={paymentMethod} 
-              onChange={(e) => handlePaymentMethodChange(e.target.value)}
-            >
-              <Radio value="PayNow" className="block mb-2">
-                <div>
-                  <Text strong>Pay Now</Text>
-                  <Text type="secondary" className="block">
-                    Online payment via credit/debit card
-                  </Text>
-                </div>
-              </Radio>
-              <Radio value="AtStore" className="block">
-                <div>
-                  <Text strong>Pay By Cash</Text>
-                  <Text type="secondary" className="block">
-                    Pay when collecting your items
-                  </Text>
-                </div>
-              </Radio>
-            </Radio.Group>
-          </Card>
-        
+        <Card>
+          <Title level={4}>Payment Method</Title>
+          <Radio.Group 
+            value={paymentMethod} 
+            onChange={(e) => handlePaymentMethodChange(e.target.value)}
+          >
+            <Radio value="PayNow" className="block mb-2">
+              <div>
+                <Text strong>Pay Now</Text>
+                <Text type="secondary" className="block">
+                  Online payment via credit/debit card
+                </Text>
+              </div>
+            </Radio>
+            <Radio value="AtStore" className="block">
+              <div>
+                <Text strong>Pay By Cash</Text>
+                <Text type="secondary" className="block">
+                  Pay when collecting your items
+                </Text>
+              </div>
+            </Radio>
+          </Radio.Group>
+        </Card>
       </div>
     </div>
   );

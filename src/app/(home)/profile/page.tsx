@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, FormEvent } from "react";
+import React, { useState, useEffect, FormEvent } from "react";
 import Vehicles from "../vehicle/page";
 import WarrantyHistory from "../warrantyhistory/page";
 import Appointments from "../customerappointment/page";
@@ -16,8 +16,31 @@ import {
   Edit,
   Check,
   X,
+  Package,
 } from "lucide-react";
 import axiosInstance from "@/dbUtils/axios";
+// Define interface for Inventory Invoice
+interface InventoryInvoice {
+  inventoryInvoiceId: number;
+  diliverType: string;
+  paymentMethod: string;
+  totalAmount: number;
+  date: string;
+  status: string;
+  inventoryInvoiceDetails: InventoryInvoiceDetail[];
+}
+
+interface InventoryInvoiceDetail {
+  inventoryInvoiceDetailId: number;
+  inventoryId: number;
+  price: number;
+  inventory: {
+    inventoryId: number;
+    name: string;
+    description: string;
+  };
+  quantity: number
+}
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("profile");
@@ -33,7 +56,9 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
-
+  const [inventoryInvoices, setInventoryInvoices] = useState<InventoryInvoice[]>([]);
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
+  const [invoiceError, setInvoiceError] = useState("");
   // Profile edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editedUser, setEditedUser] = useState({
@@ -44,7 +69,43 @@ const Profile = () => {
   });
   const [profileUpdateMessage, setProfileUpdateMessage] = useState("");
   const [profileUpdateError, setProfileUpdateError] = useState("");
+  const processInventoryInvoices = (invoices: InventoryInvoice[]) => {
+    return invoices.map((invoice) => {
+      const groupedDetails: Record<number, InventoryInvoiceDetail & { quantity: number }> = {};
+  
+      invoice.inventoryInvoiceDetails.forEach((detail) => {
+        if (groupedDetails[detail.inventoryId]) {
+          groupedDetails[detail.inventoryId].quantity += 1;
+        } else {
+          groupedDetails[detail.inventoryId] = { ...detail, quantity: 1 };
+        }
+      });
+  
+      return {
+        ...invoice,
+        inventoryInvoiceDetails: Object.values(groupedDetails),
+      };
+    });
+  };
+  const fetchInventoryInvoices = async () => {
+    try {
+      setIsLoadingInvoices(true);
+      setInvoiceError("");
 
+      const response = await axiosInstance.get("inventoryinvoices/of-customer");
+      setInventoryInvoices(processInventoryInvoices(response.data));
+    } catch (error) {
+      console.error("Error fetching inventory invoices:", error);
+      setInvoiceError("Failed to load inventory invoices");
+    } finally {
+      setIsLoadingInvoices(false);
+    }
+  };
+  useEffect(() => {
+    if (activeTab === "inventoryinvoices") {
+      fetchInventoryInvoices();
+    }
+  }, [activeTab]);
   const handleRequestCode = async () => {
     try {
       setIsLoading(true);
@@ -183,6 +244,7 @@ const Profile = () => {
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex space-x-4 mb-8">
+        {/* Existing tab buttons */}
         <button
           onClick={() => setActiveTab("profile")}
           className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
@@ -226,6 +288,17 @@ const Profile = () => {
         >
           <Calendar size={18} />
           Warranty History
+        </button>
+        <button
+          onClick={() => setActiveTab("inventoryinvoices")}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "inventoryinvoices"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          <Package size={18} />
+          Inventory Invoices
         </button>
       </div>
 
@@ -380,6 +453,69 @@ const Profile = () => {
       {activeTab === "vehicles" && <Vehicles />}
       {activeTab === "appointments" && <Appointments />}
       {activeTab === "warrantyhistory" && <WarrantyHistory />}
+      {/* New Inventory Invoices Tab */}
+      {activeTab === "inventoryinvoices" && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-2xl font-bold mb-4">Inventory Invoices</h2>
+          
+          {isLoadingInvoices ? (
+            <div className="text-center text-gray-500">Loading invoices...</div>
+          ) : invoiceError ? (
+            <div className="text-red-500">{invoiceError}</div>
+          ) : inventoryInvoices.length === 0 ? (
+            <div className="text-center text-gray-500">No inventory invoices found</div>
+          ) : (
+            <div className="space-y-4">
+              {inventoryInvoices.map((invoice) => (
+                <div 
+                  key={invoice.inventoryInvoiceId} 
+                  className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="font-semibold text-lg">
+                      Invoice #{invoice.inventoryInvoiceId}
+                    </h3>
+                    <span className={`px-2 py-1 rounded text-sm ${
+                      invoice.status === "False" ? "bg-green-100 text-green-800" : "bg-green-100 text-green-800"
+                    }`}>
+                      {invoice.status === "False" ? "Completed" : "Completed"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-600">
+                    <div>
+                      <strong>Date:</strong> {invoice.date}
+                    </div>
+                    <div>
+                      <strong>Delivery Type:</strong> {invoice.diliverType}
+                    </div>
+                    <div>
+                      <strong>Payment Method:</strong> {invoice.paymentMethod}
+                    </div>
+                    <div>
+                      <strong>Total Amount:</strong> ${invoice.totalAmount.toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="mt-4">
+                    <h4 className="font-medium mb-2">Items:</h4>
+                    <ul className="space-y-2">
+                      {invoice.inventoryInvoiceDetails.map((detail) => (
+                        <li 
+                          key={detail.inventoryInvoiceDetailId} 
+                          className="flex justify-between border-b pb-1 last:border-b-0"
+                        >
+                          <span>{detail.inventory.name}</span>
+                          <span className="font-semibold">${detail.price.toFixed(2)}</span>
+                          <td>x {detail.quantity}</td>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       {/* Password Change Modal */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
