@@ -173,7 +173,7 @@ export default function InventoryDetailPage() {
                     <Text strong>{inventory.price.toLocaleString()} VNĐ</Text>
                   </p>
                   <p>
-                    Unit: <Text strong>{inventory.unit}</Text>
+                    Amount: <Text strong>{inventory.unit}</Text>
                   </p>
                 </Card>
               </Col>
