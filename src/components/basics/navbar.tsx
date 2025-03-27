@@ -130,6 +130,12 @@ export default function Navbar() {
         <Link href="/inventories" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
           Inventory
         </Link>
+        <Link href="/term_policy" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+          Term and Policy
+        </Link>
+        <Link href="/report" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+          Report
+        </Link>
       </div>
 
       {/* Logo */}
@@ -179,7 +185,12 @@ export default function Navbar() {
     type="text" 
     onClick={() => handleIncreaseQuantity(item.inventoryId)}
   />
- 
+ <Button 
+                                icon={<Trash2 size={20} />} 
+                                type="text" 
+                                danger
+                                onClick={() => handleDecreaseQuantity(item.inventoryInvoiceDetailId, 1)}
+                              />
 </div>
 
                           </div>
@@ -200,7 +211,20 @@ export default function Navbar() {
               <button onClick={handleLogout} className="text-white font-semibold">Logout</button>
             </>
           ) : (
-            <Link href="/login" className="text-white font-semibold">Login</Link>
+            <div className="flex space-x-4 mt-4">
+              <Link
+                href="/login"
+                className="px-6 py-3 text-white bg-gradient-to-r from-gray-800 to-gray-900 hover:from-gray-700 hover:to-gray-800 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-gray-700"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-6 py-3 text-white bg-gradient-to-r from-purple-600 to-purple-800 hover:from-purple-500 hover:to-purple-700 rounded-lg font-semibold tracking-wide transition-all duration-300 shadow-md hover:shadow-lg active:scale-95 border border-purple-700"
+              >
+                Sign Up
+              </Link>
+            </div>
           )}
         </div>
       </div>

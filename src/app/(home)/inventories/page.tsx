@@ -72,7 +72,7 @@ export default function InventoriesPage() {
         window.location.reload();
     } catch (error) {
       console.error("Error adding to cart:", error);
-      message.error("An error occurred while adding item to cart");
+      message.error("Inventory Out of Stock");
     }
   };
 
