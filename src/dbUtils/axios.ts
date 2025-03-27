@@ -1,13 +1,14 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: "https://garamsapi.lemoncliff-682dfe26.southeastasia.azurecontainerapps.io/api/",
+  baseURL:
+    "https://garamsapi.lemoncliff-682dfe26.southeastasia.azurecontainerapps.io/api/",
   headers: {
     "Content-Type": "application/json",
-    "Accept": "*/*",
+    Accept: "*/*",
   },
   // Tắt withCredentials nếu không cần thiết
-  withCredentials: false
+  withCredentials: false,
 });
 
 axiosInstance.interceptors.request.use(
@@ -18,22 +19,22 @@ axiosInstance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     // Log request để debug
-    console.log('Request Config:', config);
+    console.log("Request Config:", config);
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
+    console.error("Request Error:", error);
     return Promise.reject(error);
   }
 );
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log('Response:', response);
+    console.log("Response:", response);
     return response;
   },
   (error) => {
-    console.error('Response Error:', error);
+    console.error("Response Error:", error);
     return Promise.reject(error);
   }
 );

@@ -5,6 +5,13 @@ export const getAppointments = async () => {
   return response.data;
 };
 
+export const getInvoiceByAppointment = async (appointmentId: number) => {
+  const response = await axiosInstance.get(
+    `invoices/by-appointment/${appointmentId}`
+  );
+  return response.data;
+};
+
 export const updateAppointmentStatus = async (
   appointmentId: number,
   status: string,

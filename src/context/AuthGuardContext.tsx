@@ -43,6 +43,8 @@ const restrictedPages: Record<UserRole, string[]> = {
     "/promotions",
     "/promotions/[promotionId]",
     "/report",
+    "/inventories",
+    "/inventories/[inventoryId]",
     "/services",
     "/services/[serviceId]",
     "/term_policy",
@@ -119,6 +121,7 @@ export function AuthGuardProvider({ children }: PropsWithChildren) {
         .replace("[vehicleId]", "[0-9]+")
         .replace("[promotionId]", "[0-9]+")
         .replace("[serviceId]", "[0-9]+")
+        .replace("[inventoryId]", "[0-9]+")
         .replace("[userId]", "[0-9]+");
 
       const regex = new RegExp(`^${dynamicRoutePattern}$`);
