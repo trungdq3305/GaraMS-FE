@@ -14,7 +14,7 @@ export const addInventory = async (serviceData: {
   name: number;
   description: string;
   unit: string;
-  price: number;
+  inventoryPrice: number;
   status: string;
 }) => {
   console.log(serviceData);
@@ -28,7 +28,7 @@ export const updateInventory = async (
     name: number;
     description: string;
     unit: string;
-    price: number;
+    inventoryPrice: number;
     status: string;
   }
 ) => {
