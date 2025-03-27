@@ -49,6 +49,8 @@ const restrictedPages: Record<UserRole, string[]> = {
     "/services/[serviceId]",
     "/term_policy",
     "/vehicle",
+    "/checkout",
+    "/invoice/inventorysuccess",
   ],
   3: [
     "/appointments",
