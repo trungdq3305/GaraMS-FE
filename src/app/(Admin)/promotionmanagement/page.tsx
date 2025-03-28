@@ -12,6 +12,7 @@ import {
   Modal,
   Input,
   Select,
+  InputNumber,
 } from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
@@ -488,17 +489,18 @@ const PromotionManagementPage = () => {
           <Form.Item
             label="Discount Percent"
             name="discountPercent"
+            tooltip="Discount must be between 1% and 99%."
             rules={[
               { required: true, message: "Please enter discount percent!" },
               {
                 type: "number",
                 min: 1,
                 max: 99,
-                message: "Discount must be between 1% and 99%!",
+                // message: "Discount must be between 1% and 99%!",
               },
             ]}
           >
-            <Input type="number" />
+            <InputNumber style={{ width: "-webkit-fill-available" }} />
           </Form.Item>
 
           {/* Select Services */}
