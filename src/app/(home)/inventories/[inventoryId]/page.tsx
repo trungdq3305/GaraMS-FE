@@ -187,16 +187,7 @@ export default function InventoryDetailPage() {
         >
           <Card
             className="rounded-lg shadow-md"
-            cover={
-              <Image
-                src={defaultImage}
-                alt={inventory.name}
-                width={800}
-                height={400}
-                className="object-cover"
-                style={{ height: "16rem" }}
-              />
-            }
+
           >
             <Title level={2}>{inventory.name}</Title>
             <Text type="secondary">{inventory.description}</Text>

@@ -110,13 +110,7 @@ export default function InventoriesPage() {
                     hoverable
                     cover={
                       <div className="relative h-48 overflow-hidden rounded-t-lg">
-                        <Image
-                          src={defaultImage}
-                          alt={inventory.name}
-                          layout="fill"
-                          objectFit="cover"
-                          className="transition-transform duration-300 hover:scale-105"
-                        />
+
                         <Badge
                           count={Number(inventory.unit) > 0 ? "Available" : "Out of Stock"}
                           className="absolute top-3 right-3"
