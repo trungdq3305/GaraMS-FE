@@ -220,10 +220,10 @@ export default function InventoryDetailPage() {
                   <Title level={4}>Additional Information</Title>
                   <p>
                     Status:{" "}
-                    {inventory.status ? (
+                    {Number(inventory.unit) ? (
                       <Tag color="green">Available</Tag>
                     ) : (
-                      <Tag color="red">Unavailable</Tag>
+                      <Tag color="red">Out of Stock</Tag>
                     )}
                   </p>
                 </Card>

@@ -194,58 +194,64 @@ const InventoryAndSupplierManagementPage = () => {
         { title: "ID", dataIndex: "inventoryId", key: "inventoryId", sorter: (a, b) => a.inventoryId - b.inventoryId },
         { title: "Name", dataIndex: "name", key: "name", ...getInventoryColumnSearchProps("name") },
         { title: "Description", dataIndex: "description", key: "description" },
-        { title: "Unit", dataIndex: "unit", key: "unit" },
+        { title: "Amount", dataIndex: "unit", key: "unit" },
         { title: "Price", dataIndex: "inventoryPrice", key: "inventoryPrice", sorter: (a, b) => a.inventoryPrice - b.inventoryPrice },
         {
             title: "Status",
-            dataIndex: "status",
+            dataIndex: "unit",  // Using 'unit' directly to determine availability
             key: "status",
             filters: [
                 { text: "Available", value: true },
                 { text: "Out of Stock", value: false }
             ],
-            onFilter: (value, record) => record.status === value,
-            render: (status) => {
-                const color = status ? "green" : "red";
-                const text = status ? "Available" : "Out of Stock";
+            onFilter: (value, record) => (Number(record.unit) > 0) === value,
+            render: (unit) => {
+                const isAvailable = unit > 0;
+                const color = isAvailable ? "green" : "red";
+                const text = isAvailable ? "Available" : "Out of Stock";
                 return <Tag color={color}>{text}</Tag>;
             }
         },
         { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
-        // {
-        //     title: "Actions",
-        //     key: "actions",
-        //     render: (_, record) => (
-        //         <Space>
-        //             <Button icon={<EditOutlined />} onClick={() => handleEditInventoryClick(record)}>
-        //                 Edit
-        //             </Button>
-        //             <Button danger onClick={() => handleDeleteInventory(record.inventoryId)}>
-        //                 Delete
-        //             </Button>
-        //         </Space>
-        //     ),
-        // },
         {
-            title: "Assign",
+            title: "Actions",
             key: "actions",
             render: (_, record) => (
                 <Space>
-                    <Button
-                        icon={<PlusOutlined />}
-                        onClick={() => handleAssignServiceClick(record)}
-                    >
-                        Service
+                    <Button icon={<EditOutlined />} onClick={() => handleEditInventoryClick(record)}>
+                        Edit
                     </Button>
-                    <Button
-                        icon={<PlusOutlined />}
-                        onClick={() => handleAssignSupplierClick(record)}
-                    >
-                        Supplier
+                    <Button danger onClick={() => handleDeleteInventory(record.inventoryId)}>
+                        Delete
                     </Button>
                 </Space>
             ),
         },
+        {
+            title: "Assign",
+            key: "actions",
+            render: (_, record) => {
+                const isOutOfStock = Number(record.unit) === 0;
+                return (
+                    <Space>
+                        <Button
+                            icon={<PlusOutlined />}
+                            onClick={() => handleAssignServiceClick(record)}
+                            disabled={isOutOfStock} // Disable button if out of stock
+                        >
+                            Service
+                        </Button>
+                        <Button
+                            icon={<PlusOutlined />}
+                            onClick={() => handleAssignSupplierClick(record)}
+                            disabled={isOutOfStock} // Disable button if out of stock
+                        >
+                            Supplier
+                        </Button>
+                    </Space>
+                );
+            }
+        }
 
     ];
 
@@ -539,9 +545,9 @@ const InventoryAndSupplierManagementPage = () => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Unit"
+                        label="Amount"
                         name="unit"
-                        rules={[{ required: true, message: "Please enter the unit" }]}
+                        rules={[{ required: true, message: "Please enter the amount" }]}
                     >
                         <Input placeholder="Enter unit (e.g., kg, pcs, box)" />
                     </Form.Item>
@@ -598,7 +604,7 @@ const InventoryAndSupplierManagementPage = () => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Unit"
+                        label="Amount"
                         name="unit"
                         rules={[{ required: true, message: "Please enter the unit" }]}
                     >
