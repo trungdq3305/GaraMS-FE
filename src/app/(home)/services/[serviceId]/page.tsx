@@ -237,6 +237,22 @@ import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
 
+interface ServiceInventory {
+  serviceInventoryId: number;
+  inventoryId: number;
+  serviceId: number;
+  inventory: {
+    inventoryId: number;
+    name: string;
+    description: string;
+    unit: string;
+    price: number;
+    status: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+}
+
 interface ServiceData {
   serviceId: number;
   serviceName: string;
@@ -251,6 +267,7 @@ interface ServiceData {
   updatedAt: string;
   warrantyPeriod: number;
   categoryId: number;
+  serviceInventories: ServiceInventory[];
 }
 
 interface ApiResponse {
@@ -378,19 +395,7 @@ export default function ServiceDetailPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Card
-            className="rounded-lg shadow-md"
-            cover={
-              <Image
-                src={defaultImage}
-                alt={service.serviceName}
-                width={800}
-                height={400}
-                className="object-cover"
-                style={{ height: "16rem" }}
-              />
-            }
-          >
+          <Card className="rounded-lg shadow-md">
             <Title level={2}>{service.serviceName}</Title>
             <Text type="secondary">{service.description}</Text>
 
@@ -460,6 +465,23 @@ export default function ServiceDetailPage() {
               </motion.div>
             </div> */}
           </Card>
+          <Col xs={24}>
+            <Card bordered={false} className="bg-white mt-4">
+              <Title level={4}>Service Inventories</Title>
+              {service.serviceInventories.length > 0 ? (
+                <ul className="list-disc pl-5">
+                  {service.serviceInventories.map((item) => (
+                    <li key={item.serviceInventoryId} className="mb-2">
+                      <Text strong>{item.inventory.name}</Text> - $
+                      {item.inventory.price}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <Text type="secondary">No inventories available</Text>
+              )}
+            </Card>
+          </Col>
         </motion.div>
       )}
     </div>

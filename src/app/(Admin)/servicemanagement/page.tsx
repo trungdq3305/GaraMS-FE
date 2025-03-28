@@ -115,7 +115,7 @@ const ServiceManagementPage = () => {
     setEditingService(service);
     editForm.setFieldsValue({
       serviceName: service.serviceName,
-      price: service.totalPrice,
+      price: service.servicePrice,
       description: service.description,
     });
     setIsEditModalOpen(true);
@@ -151,7 +151,7 @@ const ServiceManagementPage = () => {
     setSelectedServiceId(serviceId);
     setIsDeleteModalOpen(true);
   };
-  
+
   const confirmDelete = async () => {
     if (!selectedServiceId) return;
     try {
@@ -164,7 +164,7 @@ const ServiceManagementPage = () => {
     }
     setIsDeleteModalOpen(false);
   };
-  
+
   const getColumnSearchProps = (dataIndex: DataIndex): TableColumnType<ServiceData> => ({
     filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }: FilterDropdownProps) => (
       <div style={{ padding: 8 }}>
@@ -186,7 +186,7 @@ const ServiceManagementPage = () => {
       </div>
     ),
     filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
-    onFilter: (value, record) =>  Boolean(record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase())),
+    onFilter: (value, record) => Boolean(record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase())),
   });
 
   const columns: ColumnsType<ServiceData> = [
@@ -194,16 +194,16 @@ const ServiceManagementPage = () => {
     { title: "Name", dataIndex: "serviceName", key: "serviceName", ...getColumnSearchProps("serviceName") },
     { title: "Description", dataIndex: "description", key: "description" },
     { title: "Total Price", dataIndex: "totalPrice", key: "totalPrice", sorter: (a, b) => a.totalPrice - b.totalPrice },
-    { 
-      title: "Status", 
-      dataIndex: "status", 
-      key: "status", 
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
       filters: [
         { text: "Active", value: true },
         { text: "Inactive", value: false }
       ],
       onFilter: (value, record) => record.status === value,
-      render: (status) => (status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>) 
+      render: (status) => (status ? <Tag color="green">Active</Tag> : <Tag color="red">Inactive</Tag>)
     },
     { title: "Created At", dataIndex: "createdAt", key: "createdAt", sorter: (a, b) => moment(a.createdAt, "DD/MM/YYYY HH:mm").valueOf() - moment(b.createdAt, "DD/MM/YYYY HH:mm").valueOf() },
     {
@@ -263,96 +263,96 @@ const ServiceManagementPage = () => {
       />
 
       {/* Add Service Modal */}
-<Modal
-  title="Add New Service"
-  open={isModalOpen}
-  onCancel={() => setIsModalOpen(false)}
-  footer={[
-    <Button key="cancel" onClick={() => setIsModalOpen(false)}>Cancel</Button>,
-    <Button key="submit" type="primary" onClick={handleAddService}>Add</Button>,
-  ]}
->
-  <Form form={form} layout="vertical">
-    <Form.Item
-      label="Service Name"
-      name="serviceName"
-      rules={[{ required: true, message: "Please enter the service name" }]}
-    >
-      <Input placeholder="Enter service name" />
-    </Form.Item>
+      <Modal
+        title="Add New Service"
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsModalOpen(false)}>Cancel</Button>,
+          <Button key="submit" type="primary" onClick={handleAddService}>Add</Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical">
+          <Form.Item
+            label="Service Name"
+            name="serviceName"
+            rules={[{ required: true, message: "Please enter the service name" }]}
+          >
+            <Input placeholder="Enter service name" />
+          </Form.Item>
 
-    <Form.Item
-      label="Price"
-      name="price"
-      rules={[
-        { required: true, message: "Please enter the price" },
-        { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
-      ]}
-    >
-      <Input placeholder="Enter price" type="number" />
-    </Form.Item>
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[
+              { required: true, message: "Please enter the price" },
+              { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
+            ]}
+          >
+            <Input placeholder="Enter price" type="number" />
+          </Form.Item>
 
-    <Form.Item
-      label="Warranty Period (days)"
-      name="warrantyPeriod"
-      rules={[
-        { pattern: /^\d+$/, message: "Enter a valid number of days" },
-      ]}
-    >
-      <Input placeholder="Enter warranty period (optional)" type="number" />
-    </Form.Item>
+          <Form.Item
+            label="Warranty Period (days)"
+            name="warrantyPeriod"
+            rules={[
+              { pattern: /^\d+$/, message: "Enter a valid number of days" },
+            ]}
+          >
+            <Input placeholder="Enter warranty period (optional)" type="number" />
+          </Form.Item>
 
-    <Form.Item
-      label="Description"
-      name="description"
-      rules={[{ required: true, message: "Please enter the description" }]}
-    >
-      <Input.TextArea placeholder="Enter description" rows={3} />
-    </Form.Item>
-  </Form>
-</Modal>
+          <Form.Item
+            label="Description"
+            name="description"
+            rules={[{ required: true, message: "Please enter the description" }]}
+          >
+            <Input.TextArea placeholder="Enter description" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
 
-{/* Edit Service Modal */}
-<Modal
-  title="Edit Service"
-  open={isEditModalOpen}
-  onCancel={() => setIsEditModalOpen(false)}
-  footer={[
-    <Button key="cancel" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>,
-    <Button key="submit" type="primary" onClick={handleEditService}>Save</Button>,
-  ]}
->
-  <Form form={editForm} layout="vertical">
-    <Form.Item
-      label="Service Name"
-      name="serviceName"
-      rules={[{ required: true, message: "Please enter the service name" }]}
-    >
-      <Input placeholder="Enter service name" />
-    </Form.Item>
+      {/* Edit Service Modal */}
+      <Modal
+        title="Edit Service"
+        open={isEditModalOpen}
+        onCancel={() => setIsEditModalOpen(false)}
+        footer={[
+          <Button key="cancel" onClick={() => setIsEditModalOpen(false)}>Cancel</Button>,
+          <Button key="submit" type="primary" onClick={handleEditService}>Save</Button>,
+        ]}
+      >
+        <Form form={editForm} layout="vertical">
+          <Form.Item
+            label="Service Name"
+            name="serviceName"
+            rules={[{ required: true, message: "Please enter the service name" }]}
+          >
+            <Input placeholder="Enter service name" />
+          </Form.Item>
 
-    <Form.Item
-      label="Price"
-      name="price"
-      rules={[
-        { required: true, message: "Please enter the price" },
-        { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
-      ]}
-    >
-      <Input placeholder="Enter price" type="number" />
-    </Form.Item>
+          <Form.Item
+            label="Price"
+            name="price"
+            rules={[
+              { required: true, message: "Please enter the price" },
+              { pattern: /^\d+(\.\d{1,2})?$/, message: "Enter a valid price" },
+            ]}
+          >
+            <Input placeholder="Enter price" type="number" />
+          </Form.Item>
 
-    
 
-    <Form.Item
-      label="Description"
-      name="description"
-      rules={[{ required: true, message: "Please enter the description" }]}
-    >
-      <Input.TextArea placeholder="Enter description" rows={3} />
-    </Form.Item>
-  </Form>
-</Modal>
+
+          <Form.Item
+            label="Description"
+            name="description"
+            rules={[{ required: true, message: "Please enter the description" }]}
+          >
+            <Input.TextArea placeholder="Enter description" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
 
       {/* Delete Confirmation Modal */}
       <Modal
@@ -412,7 +412,7 @@ const ServiceManagementPage = () => {
                   renderItem={(item) => (
                     <List.Item>
                       <Text>
-                        ID: {item.employee.employeeId} - 
+                        ID: {item.employee.employeeId} -
                         Name: {item.employee.user?.fullName || item.employee.fullName || 'N/A'}
                       </Text>
                     </List.Item>

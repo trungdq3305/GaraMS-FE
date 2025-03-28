@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  updateDeliveryType, 
+import {
+  updateDeliveryType,
   updatePaymentMethod,
-  initiatePayPalPayment // New import for PayPal payment initiation
+  initiatePayPalPayment
 } from "@/dbUtils/ManagerAPIs/invoiceService";
-import { 
-  getCartItems, 
-  getCartTotal 
+import {
+  getCartItems,
+  getCartTotal
 } from "@/dbUtils/ManagerAPIs/cartService";
 import { useRouter } from "next/navigation";
 import { Button, Radio, Card, Typography, Divider, message } from "antd";
@@ -48,17 +48,14 @@ export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [consolidatedCartItems, setConsolidatedCartItems] = useState<ConsolidatedCartItem[]>([]);
   const [cartTotal, setCartTotal] = useState(0);
-  const [deliveryType, setDeliveryType] = useState<'Shipping' | 'AtStore'>('Shipping');
-  const [paymentMethod, setPaymentMethod] = useState<'PayNow' | 'AtStore'>('PayNow');
+  const [deliveryType, setDeliveryType] = useState<'Shipping' | 'AtStore' | null>(null);
+  const [isPaymentReady, setIsPaymentReady] = useState(false);
 
   const fetchCartDetails = async () => {
     try {
       const cartResponse = await getCartItems();
       const totalResponse = await getCartTotal();
-      
-      console.log("Cart Items:", cartResponse);
-      
-      // Correct mapping of cart items with explicit typing
+
       const processedCartItems = cartResponse.map((item: RawCartItem) => ({
         inventoryInvoiceDetailId: item.inventoryInvoiceDetailId,
         inventory: {
@@ -68,12 +65,11 @@ export default function CheckoutPage() {
         quantity: 1,
         price: item.price
       }));
-      
-      // Consolidate cart items
+
       const consolidatedItems = processedCartItems.reduce((acc: ConsolidatedCartItem[], item: RawCartItem) => {
         const existingItem = acc.find(
-          consolidatedItem => 
-            consolidatedItem.inventory.name === item.inventory.name && 
+          consolidatedItem =>
+            consolidatedItem.inventory.name === item.inventory.name &&
             consolidatedItem.inventory.price === item.inventory.price
         );
 
@@ -90,7 +86,7 @@ export default function CheckoutPage() {
 
         return acc;
       }, []);
-      
+
       setCartItems(processedCartItems);
       setConsolidatedCartItems(consolidatedItems);
       setCartTotal(totalResponse || 0);
@@ -106,42 +102,37 @@ export default function CheckoutPage() {
 
   const handleDeliveryTypeChange = async (type: 'Shipping' | 'AtStore') => {
     try {
-      const response = await updateDeliveryType(type);
+      await updateDeliveryType(type);
       setDeliveryType(type);
+      // Enable payment button only after delivery type is selected
+      setIsPaymentReady(true);
     } catch (error) {
       console.error("Error updating delivery type:", error);
       message.error("An error occurred while updating delivery type");
     }
   };
 
-  const handlePaymentMethodChange = async (method: 'PayNow' | 'AtStore') => {
+  const handlePayment = async () => {
+    if (!isPaymentReady) {
+      message.warning("Please select a delivery option first");
+      return;
+    }
+
     try {
-      const response = await updatePaymentMethod(method);
-      setPaymentMethod(method);
-      
-      // If PayNow is selected, initiate PayPal payment
-      if (method === 'PayNow') {
-        try {
-          // Call the API to initiate PayPal payment
-          const paypalResponse = await initiatePayPalPayment(cartTotal);
-          
-          // Check if the response contains a valid PayPal checkout URL
-          
-            // Redirect to PayPal checkout
-            window.location.href = paypalResponse;
-          
-        } catch (paypalError) {
-          console.error("PayPal checkout error:", paypalError);
-          message.error("Failed to initiate PayPal payment");
-        }
-      }
+      // First, update payment method to PayNow
+      await updatePaymentMethod('PayNow');
+
+      // Then initiate PayPal payment
+      const paypalResponse = await initiatePayPalPayment(cartTotal);
+
+      // Redirect to PayPal checkout
+      window.location.href = paypalResponse;
     } catch (error) {
-      console.error("Error updating payment method:", error);
-      message.error("An error occurred while updating payment method");
+      console.error("Payment process error:", error);
+      message.error("Failed to process payment");
     }
   };
 
-  // Rest of the component remains the same (render method)
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -152,8 +143,8 @@ export default function CheckoutPage() {
         <Card className="mb-6">
           <Title level={4}>Order Summary</Title>
           {consolidatedCartItems.map((item, index) => (
-            <div 
-              key={index} 
+            <div
+              key={index}
               className="flex justify-between items-center mb-2 pb-2 border-b"
             >
               <div>
@@ -174,8 +165,8 @@ export default function CheckoutPage() {
 
         <Card className="mb-6">
           <Title level={4}>Delivery Options</Title>
-          <Radio.Group 
-            value={deliveryType} 
+          <Radio.Group
+            value={deliveryType}
             onChange={(e) => handleDeliveryTypeChange(e.target.value)}
           >
             <Radio value="Shipping" className="block mb-2">
@@ -197,29 +188,22 @@ export default function CheckoutPage() {
           </Radio.Group>
         </Card>
 
-        <Card>
-          <Title level={4}>Payment Method</Title>
-          <Radio.Group 
-            value={paymentMethod} 
-            onChange={(e) => handlePaymentMethodChange(e.target.value)}
+        <Card className="mb-6">
+          <Title level={4}>Payment</Title>
+          <Button
+            type="primary"
+            block
+            size="large"
+            onClick={handlePayment}
+            disabled={!isPaymentReady}
           >
-            <Radio value="PayNow" className="block mb-2">
-              <div>
-                <Text strong>Pay Now</Text>
-                <Text type="secondary" className="block">
-                  Online payment via credit/debit card
-                </Text>
-              </div>
-            </Radio>
-            <Radio value="AtStore" className="block">
-              <div>
-                <Text strong>Pay By Cash</Text>
-                <Text type="secondary" className="block">
-                  Pay when collecting your items
-                </Text>
-              </div>
-            </Radio>
-          </Radio.Group>
+            Pay Now
+          </Button>
+          {!isPaymentReady && (
+            <Text type="secondary" className="block mt-2 text-center">
+              Please select a delivery option first
+            </Text>
+          )}
         </Card>
       </div>
     </div>

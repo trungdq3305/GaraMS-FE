@@ -10,7 +10,7 @@ interface Inventory {
   name: string;
   description: string;
   unit: string;
-  price: number;
+  inventoryPrice: number;
   status: boolean;
   inventorySuppliers: any[];
   serviceInventories: any[];
@@ -152,6 +152,7 @@ export default function HomePage() {
         // Fetch inventory data
         const inventoryResponse = await axiosInstance.get('inventory/inventories');
         if (inventoryResponse.data && inventoryResponse.data.data) {
+          console.log(inventoryResponse.data.data)
           setInventoryData(inventoryResponse.data.data);
         }
 
@@ -379,7 +380,7 @@ export default function HomePage() {
                   <p className="text-gray-600 mb-3">{item.description}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-blue-600 font-semibold">
-                      ${(item.price / 1000).toFixed(2)}
+                      ${item.inventoryPrice.toFixed(2)}
                     </span>
                     <span className="text-gray-500 text-sm">
                       {item.unit} in stock
