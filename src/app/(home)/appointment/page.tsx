@@ -443,9 +443,11 @@ export default function AppointmentPage() {
     try {
       const serviceIdsArray = formData.services.map((service) => service.id);
 
+      const localDate = dayjs(formData.date).format("YYYY-MM-DDTHH:mm:ss");
+
       const payload: AppointmentCreateDTO = {
         appointmentId: 0,
-        date: formData.date,
+        date: localDate,
         note: formData.note,
         status: "",
         vehicleId: parseInt(formData.vehicle),
