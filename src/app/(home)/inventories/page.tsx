@@ -43,6 +43,7 @@ export default function InventoriesPage() {
     try {
       const response = await getInventories();
       if (response.isSuccess && response.data) {
+        console.log(response.data)
         setInventories(response.data);
       } else {
         setError(response.message || "Failed to fetch inventories");
@@ -67,9 +68,9 @@ export default function InventoriesPage() {
   const handleAddToCart = async (inventoryId: number) => {
     try {
       const response = await addInventoryToCart(inventoryId);
-      
-        message.success("Item added to cart successfully");
-        window.location.reload();
+
+      message.success("Item added to cart successfully");
+      window.location.reload();
     } catch (error) {
       console.error("Error adding to cart:", error);
       message.error("Inventory Out of Stock");
@@ -117,10 +118,10 @@ export default function InventoriesPage() {
                           className="transition-transform duration-300 hover:scale-105"
                         />
                         <Badge
-                          count={inventory.status ? "Available" : "Unavailable"}
+                          count={Number(inventory.unit) > 0 ? "Available" : "Out of Stock"}
                           className="absolute top-3 right-3"
                           style={{
-                            backgroundColor: inventory.status
+                            backgroundColor: Number(inventory.unit)
                               ? "#52c41a"
                               : "#f5222d",
                             borderRadius: "12px",
