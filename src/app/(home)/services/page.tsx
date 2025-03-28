@@ -117,15 +117,7 @@ export default function ServicesPage() {
               >
                 <Card
                   hoverable
-                  cover={
-                    <Image
-                      src={defaultImage}
-                      alt={service.serviceName}
-                      width={300}
-                      height={200}
-                      className="object-cover w-full h-48"
-                    />
-                  }
+                  
                   className="rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
                 >
                   <h3 className="text-lg font-semibold">

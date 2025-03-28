@@ -380,16 +380,7 @@ export default function ServiceDetailPage() {
         >
           <Card
             className="rounded-lg shadow-md"
-            cover={
-              <Image
-                src={defaultImage}
-                alt={service.serviceName}
-                width={800}
-                height={400}
-                className="object-cover"
-                style={{ height: "16rem" }}
-              />
-            }
+
           >
             <Title level={2}>{service.serviceName}</Title>
             <Text type="secondary">{service.description}</Text>
