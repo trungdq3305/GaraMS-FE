@@ -64,14 +64,9 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    // if (isAuthenticated) {
-    //   fetchCartItems();
-    // }
-    const intervalId = setInterval(() => {
+    if (isAuthenticated) {
       fetchCartItems();
-    }, 10000);
-
-    return () => clearInterval(intervalId);
+    }
   }, [isAuthenticated]);
 
   useEffect(() => {
