@@ -8,6 +8,7 @@ export interface AppointmentCreateDTO {
   note: string;
   status: string;
   vehicleId: number;
+  employeeId: number;
   serviceIds: number[]; // Array of service IDs
 }
 

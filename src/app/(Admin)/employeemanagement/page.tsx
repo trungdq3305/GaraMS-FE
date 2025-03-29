@@ -1,7 +1,439 @@
+// "use client";
+// import { useEffect, useRef, useState } from "react";
+// import {
+//   Button,
+//   Input as AntInput,
+//   Space,
+//   Table,
+//   Modal,
+//   message,
+//   Form,
+//   Select,
+// } from "antd";
+// import type { InputRef, TableColumnType } from "antd";
+// import { SearchOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+// import type { ColumnsType } from "antd/es/table";
+// import type { FilterDropdownProps } from "antd/es/table/interface";
+// import {
+//   getEmployees,
+//   addEmployee,
+//   updateEmployee,
+// } from "@/dbUtils/ManagerAPIs/employeeservice";
+// import {
+//   getSpecializations,
+//   assignServiceToEmployee,
+// } from "@/dbUtils/ManagerAPIs/employeeservice"; // API lấy danh sách chuyên môn
+// import axiosInstance from "@/dbUtils/axios";
+// interface Employee {
+//   key: string;
+//   employeeId: number;
+//   salary: number;
+//   specializedId: number;
+//   userId: number;
+//   user?: User; // Ensure this exists if user data is included
+//   serviceEmployees: { service: Service }[];
+// }
 
+// interface Specialized {
+//   specializedId: number;
+//   specializedName: string;
+// }
+// interface User {
+//   fullName: string;
+//   email: string;
+//   phoneNumber: string;
+//   address: string;
+// }
+
+// interface Service {
+//   serviceId: number;
+//   serviceName: string;
+//   description: string;
+//   totalPrice: number;
+// }
+// type DataIndex = keyof Employee;
+
+// const EmployeeManagementPage = () => {
+//   const [data, setData] = useState<Employee[]>([]);
+//   const [loading, setLoading] = useState(false);
+//   const [, setSearchText] = useState("");
+//   const [, setSearchedColumn] = useState("");
+//   const [isModalOpen, setIsModalOpen] = useState(false);
+//   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+//   const [form] = Form.useForm();
+//   const [specializedList, setSpecializedList] = useState<Specialized[]>([]);
+//   const [servicesList, setServicesList] = useState<
+//     { id: number; name: string }[]
+//   >([]);
+//   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+//   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+//     null
+//   );
+//   const [selectedServiceId, setSelectedServiceId] = useState<number | null>(
+//     null
+//   );
+//   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+//   const [selectedEmployeeDetails, setSelectedEmployeeDetails] =
+//     useState<Employee | null>(null);
+
+//   const searchInput = useRef<InputRef>(null);
+
+//   useEffect(() => {
+//     fetchEmployees();
+//     fetchSpecializedList();
+//   }, []);
+
+//   const fetchEmployees = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await getEmployees();
+
+//       const filteredEmployees = response.data
+//         .filter((item: any) => item.userId !== null)
+//         .map((item: any) => ({
+//           key: item.employeeId.toString(),
+//           employeeId: item.employeeId,
+//           salary: item.salary,
+//           specializedId: item.specializedId,
+//           userId: item.userId,
+//           user: item.user || null, // Đảm bảo 'user' tồn tại
+//         }));
+
+//       setData(filteredEmployees);
+//     } catch (error) {
+//       console.error("Error fetching employees:", error);
+//       message.error("Failed to fetch employees.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     const fetchServices = async () => {
+//       try {
+//         const response = await axiosInstance.get("service/services");
+//         const services = response.data.data.map((service: any) => ({
+//           id: service.serviceId,
+//           name: service.serviceName,
+//         }));
+//         setServicesList(services);
+//       } catch (err) {
+//         message.error("Failed to load services.");
+//         console.error(err);
+//       }
+//     };
+
+//     fetchServices();
+//   }, []);
+
+//   const handleAssignServiceClick = (employee: Employee) => {
+//     setSelectedEmployee(employee);
+//     setIsServiceModalOpen(true);
+//   };
+//   const handleAssignService = async () => {
+//     if (!selectedEmployee || selectedServiceId === null) {
+//       message.error("Please select a service.");
+//       return;
+//     }
+
+//     try {
+//       await assignServiceToEmployee(
+//         selectedEmployee.employeeId,
+//         selectedServiceId
+//       );
+//       message.success(
+//         `Service assigned to Employee #${selectedEmployee.employeeId} successfully!`
+//       );
+//       setIsServiceModalOpen(false);
+//       setSelectedServiceId(null);
+//     } catch (error) {
+//       console.error("Error assigning service:", error);
+//       message.error("Failed to assign service.");
+//     }
+//   };
+
+//   const fetchSpecializedList = async () => {
+//     try {
+//       const response = await getSpecializations();
+//       console.log(response);
+//       if (response) {
+//         console.log(response);
+//         setSpecializedList(response);
+//       } else {
+//         setSpecializedList([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching specialized list:", error);
+//       message.error("Failed to fetch specialized list.");
+//       setSpecializedList([]); // Ensure the state is still an array
+//     }
+//   };
+
+//   const handleAddEmployee = async () => {
+//     try {
+//       const values = await form.validateFields();
+//       if (editingEmployee) {
+//         await updateEmployee(editingEmployee.employeeId, {
+//           salary: values.salary,
+//           specializedId: values.specializedId,
+//         });
+//         message.success(
+//           `Employee #${editingEmployee.employeeId} updated successfully!`
+//         );
+//       } else {
+//         await addEmployee({
+//           salary: values.salary,
+//           specializedId: values.specializedId,
+//           userId: values.userId,
+//         });
+//         message.success("Employee added successfully!");
+//       }
+//       setIsModalOpen(false);
+//       form.resetFields();
+//       fetchEmployees();
+//     } catch (error) {
+//       console.error("Error adding/updating employee:", error);
+//       message.error("Failed to save employee data.");
+//     }
+//   };
+
+//   const handleEditClick = (employee: Employee) => {
+//     setEditingEmployee(employee);
+//     form.setFieldsValue({
+//       salary: employee.salary,
+//       specializedId: employee.specializedId,
+//     });
+//     setIsModalOpen(true);
+//   };
+
+//   const handleSearch = (
+//     selectedKeys: string[],
+//     confirm: FilterDropdownProps["confirm"],
+//     dataIndex: DataIndex
+//   ) => {
+//     confirm();
+//     setSearchText(selectedKeys[0]);
+//     setSearchedColumn(dataIndex);
+//   };
+
+//   const getColumnSearchProps = (
+//     dataIndex: DataIndex
+//   ): TableColumnType<Employee> => ({
+//     filterDropdown: ({
+//       setSelectedKeys,
+//       selectedKeys,
+//       confirm,
+//       clearFilters,
+//       close,
+//     }) => (
+//       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
+//         <AntInput
+//           ref={searchInput}
+//           placeholder={`Search ${dataIndex}`}
+//           value={selectedKeys[0]}
+//           onChange={(e) =>
+//             setSelectedKeys(e.target.value ? [e.target.value] : [])
+//           }
+//           onPressEnter={() =>
+//             handleSearch(selectedKeys as string[], confirm, dataIndex)
+//           }
+//           style={{ marginBottom: 8, display: "block" }}
+//         />
+//         <Space>
+//           <Button
+//             type="primary"
+//             onClick={() =>
+//               handleSearch(selectedKeys as string[], confirm, dataIndex)
+//             }
+//             icon={<SearchOutlined />}
+//             size="small"
+//             style={{ width: 90 }}
+//           >
+//             Search
+//           </Button>
+//           <Button
+//             onClick={() => clearFilters && clearFilters()}
+//             size="small"
+//             style={{ width: 90 }}
+//           >
+//             Reset
+//           </Button>
+//           <Button type="link" size="small" onClick={() => close()}>
+//             Close
+//           </Button>
+//         </Space>
+//       </div>
+//     ),
+//     filterIcon: (filtered: boolean) => (
+//       <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+//     ),
+//     onFilter: (value, record) =>
+//       Boolean(
+//         record[dataIndex]
+//           ?.toString()
+//           .toLowerCase()
+//           .includes((value as string).toLowerCase())
+//       ),
+//   });
+
+//   const columns: ColumnsType<Employee> = [
+//     { title: "ID", dataIndex: "employeeId", key: "employeeId" },
+//     {
+//       title: "Salary",
+//       dataIndex: "salary",
+//       key: "salary",
+//       sorter: (a, b) => a.salary - b.salary,
+//     },
+//     {
+//       title: "Specialized",
+//       dataIndex: "specializedId",
+//       key: "specializedId",
+//       render: (specializedId) =>
+//         specializedList.find((spec) => spec.specializedId === specializedId)
+//           ?.specializedName || specializedId,
+//     },
+//     { title: "User ID", dataIndex: "userId", key: "userId" },
+//     {
+//       title: "Action",
+//       key: "action",
+//       render: (_, record) => (
+//         <Space>
+//           <Button
+//             icon={<EditOutlined />}
+//             onClick={() => handleEditClick(record)}
+//           >
+//             Edit
+//           </Button>
+//           <Button
+//             icon={<PlusOutlined />}
+//             onClick={() => handleAssignServiceClick(record)}
+//           >
+//             Assign Service
+//           </Button>
+//           <Button onClick={() => handleDetailClick(record)}>Infomation</Button>
+//         </Space>
+//       ),
+//     },
+//   ];
+//   const handleDetailClick = (employee: Employee) => {
+//     console.log(employee);
+//     setSelectedEmployeeDetails(employee);
+//     setIsDetailModalOpen(true);
+//   };
+//   return (
+//     <div>
+//       <div className="text-xl font-semibold mb-4 flex justify-between items-center">
+//         <div className="text-xl font-semibold mb-4">Employee Management</div>
+//       </div>
+//       <Table<Employee>
+//         columns={columns}
+//         dataSource={data}
+//         loading={loading}
+//         pagination={{ pageSize: 10 }}
+//       />
+
+//       {/* Modal Add/Edit */}
+//       <Modal
+//         title={editingEmployee ? "Edit Employee" : "Add Employee"}
+//         open={isModalOpen}
+//         onOk={handleAddEmployee}
+//         onCancel={() => {
+//           setIsModalOpen(false);
+//           setEditingEmployee(null);
+//           form.resetFields();
+//         }}
+//       >
+//         <Form form={form} layout="vertical">
+//           <Form.Item
+//             label="Salary"
+//             name="salary"
+//             rules={[{ required: true, message: "Please enter salary" }]}
+//           >
+//             <AntInput type="number" placeholder="Enter salary" />
+//           </Form.Item>
+//           <Form.Item
+//             label="Specialized"
+//             name="specializedId"
+//             rules={[{ required: true, message: "Please select specialized" }]}
+//           >
+//             <Select
+//               loading={specializedList.length === 0} // Show loading state
+//               options={
+//                 specializedList?.map((spec) => ({
+//                   value: spec.specializedId,
+//                   label: spec.specializedName,
+//                 })) || []
+//               }
+//             />
+//           </Form.Item>
+//         </Form>
+//       </Modal>
+//       <Modal
+//         title="Assign Service to Employee"
+//         open={isServiceModalOpen}
+//         onOk={handleAssignService}
+//         onCancel={() => setIsServiceModalOpen(false)}
+//       >
+//         <Select
+//           style={{ width: "100%" }}
+//           placeholder="Select a service"
+//           value={selectedServiceId}
+//           onChange={setSelectedServiceId}
+//           options={servicesList.map((service) => ({
+//             value: service.id,
+//             label: service.name,
+//           }))}
+//         />
+//       </Modal>
+//       <Modal
+//         title="Employee Details"
+//         open={isDetailModalOpen}
+//         onCancel={() => setIsDetailModalOpen(false)}
+//         footer={null}
+//       >
+//         {selectedEmployeeDetails && (
+//           <div>
+//             {selectedEmployeeDetails.user ? (
+//               <ul>
+//                 <li>
+//                   <strong>Name:</strong> {selectedEmployeeDetails.user.fullName}
+//                 </li>
+//                 <li>
+//                   <strong>Email:</strong> {selectedEmployeeDetails.user.email}
+//                 </li>
+//                 <li>
+//                   <strong>Phone:</strong>{" "}
+//                   {selectedEmployeeDetails.user.phoneNumber}
+//                 </li>
+//                 <li>
+//                   <strong>Address:</strong>{" "}
+//                   {selectedEmployeeDetails.user.address}
+//                 </li>
+//               </ul>
+//             ) : (
+//               <p>No user information available.</p>
+//             )}
+//           </div>
+//         )}
+//       </Modal>
+//     </div>
+//   );
+// };
+
+// export default EmployeeManagementPage;
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { Button, Input as AntInput, Space, Table, Modal, message, Form, Select } from "antd";
+import {
+  Button,
+  Input as AntInput,
+  Space,
+  Table,
+  Modal,
+  message,
+  Form,
+  Select,
+  Checkbox,
+} from "antd";
 import type { InputRef, TableColumnType } from "antd";
 import { SearchOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
@@ -10,36 +442,40 @@ import {
   getEmployees,
   addEmployee,
   updateEmployee,
+  getSpecializations,
 } from "@/dbUtils/ManagerAPIs/employeeservice";
-import { getSpecializations, assignServiceToEmployee } from "@/dbUtils/ManagerAPIs/employeeservice"; // API lấy danh sách chuyên môn
-import axiosInstance from "@/dbUtils/axios";
+import {
+  getShifts,
+  assignShiftToEmployee,
+} from "@/dbUtils/ManagerAPIs/shiftsservice";
+
 interface Employee {
   key: string;
   employeeId: number;
   salary: number;
   specializedId: number;
   userId: number;
-  user?: User;  // Ensure this exists if user data is included
-  serviceEmployees: { service: Service }[];
+  user?: User;
 }
 
 interface Specialized {
   specializedId: number;
   specializedName: string;
 }
+
 interface User {
-    fullName: string;
-    email: string;
-    phoneNumber: string;
-    address: string;
-  }
-  
-  interface Service {
-    serviceId: number;
-    serviceName: string;
-    description: string;
-    totalPrice: number;
-  }
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  address: string;
+}
+
+interface Shift {
+  shiftId: number;
+  startTime: string;
+  endTime: string;
+}
+
 type DataIndex = keyof Employee;
 
 const EmployeeManagementPage = () => {
@@ -51,13 +487,17 @@ const EmployeeManagementPage = () => {
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [form] = Form.useForm();
   const [specializedList, setSpecializedList] = useState<Specialized[]>([]);
-  const [servicesList, setServicesList] = useState<{ id: number; name: string }[]>([]);
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedServiceId, setSelectedServiceId] = useState<number | null>(null);
+  const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
+  const [shifts, setShifts] = useState<Shift[]>([]);
+  const [selectedShiftId, setSelectedShiftId] = useState<number | null>(null);
+  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [selectedEmployeeDetails, setSelectedEmployeeDetails] = useState<Employee | null>(null);
-  
+  const [selectedEmployeeDetails, setSelectedEmployeeDetails] =
+    useState<Employee | null>(null);
+
   const searchInput = useRef<InputRef>(null);
 
   useEffect(() => {
@@ -69,7 +509,6 @@ const EmployeeManagementPage = () => {
     setLoading(true);
     try {
       const response = await getEmployees();
-  
       const filteredEmployees = response.data
         .filter((item: any) => item.userId !== null)
         .map((item: any) => ({
@@ -78,9 +517,8 @@ const EmployeeManagementPage = () => {
           salary: item.salary,
           specializedId: item.specializedId,
           userId: item.userId,
-          user: item.user || null, // Đảm bảo 'user' tồn tại
+          user: item.user || null,
         }));
-  
       setData(filteredEmployees);
     } catch (error) {
       console.error("Error fetching employees:", error);
@@ -89,54 +527,11 @@ const EmployeeManagementPage = () => {
       setLoading(false);
     }
   };
-  
-  
-  
-  useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const response = await axiosInstance.get("service/services");
-        const services = response.data.data.map((service: any) => ({
-          id: service.serviceId,
-          name: service.serviceName,
-        }));
-        setServicesList(services);
-      } catch (err) {
-        message.error("Failed to load services.");
-        console.error(err);
-      }
-    };
-  
-    fetchServices();
-  }, []);
-  
-  const handleAssignServiceClick = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setIsServiceModalOpen(true);
-  };
-  const handleAssignService = async () => {
-    if (!selectedEmployee || selectedServiceId === null) {
-      message.error("Please select a service.");
-      return;
-    }
-  
-    try {
-      await assignServiceToEmployee(selectedEmployee.employeeId, selectedServiceId);
-      message.success(`Service assigned to Employee #${selectedEmployee.employeeId} successfully!`);
-      setIsServiceModalOpen(false);
-      setSelectedServiceId(null);
-    } catch (error) {
-      console.error("Error assigning service:", error);
-      message.error("Failed to assign service.");
-    }
-  };
-    
+
   const fetchSpecializedList = async () => {
     try {
       const response = await getSpecializations();
-      console.log(response)
       if (response) {
-        console.log(response)
         setSpecializedList(response);
       } else {
         setSpecializedList([]);
@@ -144,7 +539,54 @@ const EmployeeManagementPage = () => {
     } catch (error) {
       console.error("Error fetching specialized list:", error);
       message.error("Failed to fetch specialized list.");
-      setSpecializedList([]); // Ensure the state is still an array
+      setSpecializedList([]);
+    }
+  };
+
+  const fetchShifts = async () => {
+    try {
+      const shiftsData = await getShifts();
+      setShifts(shiftsData);
+    } catch (error) {
+      console.error("Error fetching shifts:", error);
+      message.error("Failed to fetch shifts.");
+      setShifts([]);
+    }
+  };
+
+  const handleAssignShiftClick = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setSelectedShiftId(null);
+    setSelectedMonth(null);
+    fetchShifts();
+    setIsShiftModalOpen(true);
+  };
+
+  const handleAssignShift = async () => {
+    if (
+      !selectedEmployee ||
+      selectedShiftId === null ||
+      selectedMonth === null
+    ) {
+      message.error("Please select a shift and a month.");
+      return;
+    }
+
+    try {
+      await assignShiftToEmployee(
+        selectedEmployee.employeeId,
+        selectedShiftId,
+        selectedMonth
+      );
+      message.success(
+        `Shift assigned to Employee #${selectedEmployee.employeeId} successfully!`
+      );
+      setIsShiftModalOpen(false);
+      setSelectedShiftId(null);
+      setSelectedMonth(null);
+    } catch (error) {
+      console.error("Error assigning shift:", error);
+      message.error("Failed to assign shift.");
     }
   };
 
@@ -156,7 +598,9 @@ const EmployeeManagementPage = () => {
           salary: values.salary,
           specializedId: values.specializedId,
         });
-        message.success(`Employee #${editingEmployee.employeeId} updated successfully!`);
+        message.success(
+          `Employee #${editingEmployee.employeeId} updated successfully!`
+        );
       } else {
         await addEmployee({
           salary: values.salary,
@@ -196,27 +640,43 @@ const EmployeeManagementPage = () => {
   const getColumnSearchProps = (
     dataIndex: DataIndex
   ): TableColumnType<Employee> => ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
       <div style={{ padding: 8 }} onKeyDown={(e) => e.stopPropagation()}>
         <AntInput
           ref={searchInput}
           placeholder={`Search ${dataIndex}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() =>
+            handleSearch(selectedKeys as string[], confirm, dataIndex)
+          }
           style={{ marginBottom: 8, display: "block" }}
         />
         <Space>
           <Button
             type="primary"
-            onClick={() => handleSearch(selectedKeys as string[], confirm, dataIndex)}
+            onClick={() =>
+              handleSearch(selectedKeys as string[], confirm, dataIndex)
+            }
             icon={<SearchOutlined />}
             size="small"
             style={{ width: 90 }}
           >
             Search
           </Button>
-          <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+          <Button
+            onClick={() => clearFilters && clearFilters()}
+            size="small"
+            style={{ width: 90 }}
+          >
             Reset
           </Button>
           <Button type="link" size="small" onClick={() => close()}>
@@ -225,19 +685,33 @@ const EmployeeManagementPage = () => {
         </Space>
       </div>
     ),
-    filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />,
+    filterIcon: (filtered: boolean) => (
+      <SearchOutlined style={{ color: filtered ? "#1677ff" : undefined }} />
+    ),
     onFilter: (value, record) =>
-      Boolean(record[dataIndex]?.toString().toLowerCase().includes((value as string).toLowerCase())),
+      Boolean(
+        record[dataIndex]
+          ?.toString()
+          .toLowerCase()
+          .includes((value as string).toLowerCase())
+      ),
   });
 
   const columns: ColumnsType<Employee> = [
     { title: "ID", dataIndex: "employeeId", key: "employeeId" },
-    { title: "Salary", dataIndex: "salary", key: "salary", sorter: (a, b) => a.salary - b.salary },
+    {
+      title: "Salary",
+      dataIndex: "salary",
+      key: "salary",
+      sorter: (a, b) => a.salary - b.salary,
+    },
     {
       title: "Specialized",
       dataIndex: "specializedId",
       key: "specializedId",
-      render: (specializedId) => specializedList.find((spec) => spec.specializedId === specializedId)?.specializedName || specializedId,
+      render: (specializedId) =>
+        specializedList.find((spec) => spec.specializedId === specializedId)
+          ?.specializedName || specializedId,
     },
     { title: "User ID", dataIndex: "userId", key: "userId" },
     {
@@ -245,24 +719,40 @@ const EmployeeManagementPage = () => {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button icon={<EditOutlined />} onClick={() => handleEditClick(record)}>Edit</Button>
-          <Button icon={<PlusOutlined />} onClick={() => handleAssignServiceClick(record)}>Assign Service</Button>
-          <Button onClick={() => handleDetailClick(record)}>Infomation</Button>
+          <Button
+            icon={<EditOutlined />}
+            onClick={() => handleEditClick(record)}
+          >
+            Edit
+          </Button>
+          <Button
+            icon={<PlusOutlined />}
+            onClick={() => handleAssignShiftClick(record)}
+          >
+            Assign Shift
+          </Button>
+          <Button onClick={() => handleDetailClick(record)}>Information</Button>
         </Space>
       ),
     },
   ];
+
   const handleDetailClick = (employee: Employee) => {
-    console.log(employee)
     setSelectedEmployeeDetails(employee);
     setIsDetailModalOpen(true);
   };
+
   return (
     <div>
       <div className="text-xl font-semibold mb-4 flex justify-between items-center">
         <div className="text-xl font-semibold mb-4">Employee Management</div>
       </div>
-      <Table<Employee> columns={columns} dataSource={data} loading={loading} pagination={{ pageSize: 10 }} />
+      <Table<Employee>
+        columns={columns}
+        dataSource={data}
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+      />
 
       {/* Modal Add/Edit */}
       <Modal
@@ -276,61 +766,108 @@ const EmployeeManagementPage = () => {
         }}
       >
         <Form form={form} layout="vertical">
-          <Form.Item label="Salary" name="salary" rules={[{ required: true, message: "Please enter salary" }]}>
+          <Form.Item
+            label="Salary"
+            name="salary"
+            rules={[{ required: true, message: "Please enter salary" }]}
+          >
             <AntInput type="number" placeholder="Enter salary" />
           </Form.Item>
-          <Form.Item 
-  label="Specialized" 
-  name="specializedId" 
-  rules={[{ required: true, message: "Please select specialized" }]}
->
-  <Select 
-    loading={specializedList.length === 0} // Show loading state
-    options={specializedList?.map((spec) => ({
-      value: spec.specializedId, 
-      label: spec.specializedName
-    })) || []} 
-  />
-</Form.Item>
+          <Form.Item
+            label="Specialized"
+            name="specializedId"
+            rules={[{ required: true, message: "Please select specialized" }]}
+          >
+            <Select
+              loading={specializedList.length === 0}
+              options={
+                specializedList?.map((spec) => ({
+                  value: spec.specializedId,
+                  label: spec.specializedName,
+                })) || []
+              }
+            />
+          </Form.Item>
         </Form>
       </Modal>
+
+      {/* Modal Assign Shift */}
       <Modal
-  title="Assign Service to Employee"
-  open={isServiceModalOpen}
-  onOk={handleAssignService}
-  onCancel={() => setIsServiceModalOpen(false)}
->
-  <Select
-    style={{ width: "100%" }}
-    placeholder="Select a service"
-    value={selectedServiceId}
-    onChange={setSelectedServiceId}
-    options={servicesList.map((service) => ({
-      value: service.id,
-      label: service.name,
-    }))}
-  />
-</Modal>
-<Modal
-  title="Employee Details"
-  open={isDetailModalOpen}
-  onCancel={() => setIsDetailModalOpen(false)}
-  footer={null}
->
-  {selectedEmployeeDetails && (
-    <div>
-      {selectedEmployeeDetails.user ? (
-        <ul>
-          <li><strong>Name:</strong> {selectedEmployeeDetails.user.fullName}</li>
-          <li><strong>Email:</strong> {selectedEmployeeDetails.user.email}</li>
-          <li><strong>Phone:</strong> {selectedEmployeeDetails.user.phoneNumber}</li>
-          <li><strong>Address:</strong> {selectedEmployeeDetails.user.address}</li>
-        </ul>
-      ) : <p>No user information available.</p>}
-      
-    </div>
-  )}
-</Modal>
+        title="Assign Shift to Employee"
+        open={isShiftModalOpen}
+        onOk={handleAssignShift}
+        onCancel={() => setIsShiftModalOpen(false)}
+        width={600}
+      >
+        <div style={{ display: "flex", gap: "20px" }}>
+          {/* Left Side: Shift List with Checkboxes */}
+          <div style={{ flex: 1 }}>
+            <h3>Shifts</h3>
+            {shifts.length > 0 ? (
+              shifts.map((shift) => (
+                <div key={shift.shiftId} style={{ marginBottom: "10px" }}>
+                  <Checkbox
+                    checked={selectedShiftId === shift.shiftId}
+                    onChange={() => setSelectedShiftId(shift.shiftId)}
+                  >
+                    Shift {shift.shiftId}: {shift.startTime} - {shift.endTime}
+                  </Checkbox>
+                </div>
+              ))
+            ) : (
+              <p>No shifts available.</p>
+            )}
+          </div>
+
+          {/* Right Side: Month Selection */}
+          <div style={{ flex: 1 }}>
+            <h3>Select Month</h3>
+            <Select
+              style={{ width: "100%" }}
+              placeholder="Select a month"
+              value={selectedMonth}
+              onChange={(value) => setSelectedMonth(value)}
+              options={Array.from({ length: 12 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }))}
+            />
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal Employee Details */}
+      <Modal
+        title="Employee Details"
+        open={isDetailModalOpen}
+        onCancel={() => setIsDetailModalOpen(false)}
+        footer={null}
+      >
+        {selectedEmployeeDetails && (
+          <div>
+            {selectedEmployeeDetails.user ? (
+              <ul>
+                <li>
+                  <strong>Name:</strong> {selectedEmployeeDetails.user.fullName}
+                </li>
+                <li>
+                  <strong>Email:</strong> {selectedEmployeeDetails.user.email}
+                </li>
+                <li>
+                  <strong>Phone:</strong>{" "}
+                  {selectedEmployeeDetails.user.phoneNumber}
+                </li>
+                <li>
+                  <strong>Address:</strong>{" "}
+                  {selectedEmployeeDetails.user.address}
+                </li>
+              </ul>
+            ) : (
+              <p>No user information available.</p>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 };

@@ -316,6 +316,7 @@ import {
   createAppointment,
   AppointmentCreateDTO,
 } from "@/dbUtils/appointmentAPIs/appointment";
+import { getEmployees } from "@/dbUtils/ManagerAPIs/employeeservice";
 import dayjs from "dayjs";
 import { CheckCircleOutlined } from "@ant-design/icons";
 
@@ -329,6 +330,12 @@ interface Service {
   description: string;
 }
 
+interface Employee {
+  employeeId: number;
+  user: {
+    userName: string;
+  };
+}
 interface FormData {
   date: string;
   note: string;
@@ -336,6 +343,7 @@ interface FormData {
   username: string;
   email: string;
   phone: string;
+  employeeId: string;
   services: Service[];
 }
 
@@ -347,10 +355,12 @@ export default function AppointmentPage() {
     username: "",
     email: "",
     phone: "",
+    employeeId: "",
     services: [],
   });
 
   const [servicesList, setServicesList] = useState<Service[]>([]);
+  const [employeesList, setEmployeesList] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -418,8 +428,37 @@ export default function AppointmentPage() {
     }
   };
 
+  const fetchEmployees = async () => {
+    try {
+      const response = await getEmployees();
+      if (response.isSuccess) {
+        setEmployeesList(response.data);
+      } else {
+        setError("Failed to load employees.");
+      }
+    } catch (err) {
+      setError("Failed to load employees.");
+      console.error(err);
+    }
+  };
+
+  // useEffect(() => {
+  //   fetchServices();
+
+  //   const intervalId = setInterval(() => {
+  //     fetchServices();
+  //   }, 10000);
+
+  //   return () => clearInterval(intervalId);
+  // }, []);
   useEffect(() => {
-    fetchServices();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchServices(), fetchEmployees()]);
+      setLoading(false);
+    };
+
+    loadData();
 
     const intervalId = setInterval(() => {
       fetchServices();
@@ -451,6 +490,7 @@ export default function AppointmentPage() {
         note: formData.note,
         status: "",
         vehicleId: parseInt(formData.vehicle),
+        employeeId: parseInt(formData.employeeId),
         serviceIds: serviceIdsArray,
       };
 
@@ -473,11 +513,31 @@ export default function AppointmentPage() {
       date: "",
       note: "",
       vehicle: "",
+      employeeId: "",
       username: user?.fullName || "",
       email: user?.email || "",
       phone: user?.phone || "",
       services: [],
     });
+  };
+
+  const disabledHours = () => {
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      if (i < 6 || i > 17) {
+        hours.push(i);
+      }
+    }
+    return hours;
+  };
+
+  const disabledMinutes = (selectedHour: number) => {
+    if (selectedHour === 6 || selectedHour === 17) {
+      return Array.from({ length: 60 }, (_, i) => i).filter(
+        (minute) => minute !== 0
+      );
+    }
+    return [];
   };
 
   const totalPrice = formData.services.reduce(
@@ -516,6 +576,8 @@ export default function AppointmentPage() {
                 })
               }
               value={formData.date ? dayjs(formData.date) : null}
+              disabledHours={disabledHours}
+              disabledMinutes={disabledMinutes}
             />
           </div>
 
@@ -555,6 +617,26 @@ export default function AppointmentPage() {
                     value={vehicle.vehicleId}
                   >
                     {vehicle.brand} {vehicle.model} - {vehicle.plateNumber}
+                  </Select.Option>
+                ))}
+              </Select>
+            </div>
+            <div>
+              <Text strong>Employee:</Text>
+              <Select
+                className="w-full"
+                value={formData.employeeId}
+                onChange={(value) =>
+                  setFormData({ ...formData, employeeId: value })
+                }
+                placeholder="Select Employee"
+              >
+                {employeesList.map((employee) => (
+                  <Select.Option
+                    key={employee.employeeId}
+                    value={employee.employeeId.toString()} // Lưu employeeId dưới dạng string để khớp với Select
+                  >
+                    {employee.user.userName} {/* Hiển thị userName */}
                   </Select.Option>
                 ))}
               </Select>
