@@ -5,11 +5,11 @@ import Link from "next/link";
 import { User, ShoppingCart, Trash2, Minus, Plus } from "lucide-react";
 import useAuthStore from "@/app/login/hooks/useAuthStore";
 import { useRouter } from "next/navigation";
-import { 
-  getCartItems, 
-  removeCartItem, 
-  addInventoryToCart, 
-  getCartTotal 
+import {
+  getCartItems,
+  removeCartItem,
+  addInventoryToCart,
+  getCartTotal,
 } from "@/dbUtils/ManagerAPIs/cartService";
 import { Badge, Button, message } from "antd";
 
@@ -19,7 +19,6 @@ interface Inventory {
   description: string;
   price: number;
   unit: string;
-  
 }
 
 interface CartItem {
@@ -44,10 +43,10 @@ export default function Navbar() {
     try {
       const cartResponse = await getCartItems();
       const totalResponse = await getCartTotal();
-  
+
       // Nhóm các sản phẩm có cùng inventoryId và đếm số lượng
       const groupedItems: Record<number, CartItem & { quantity: number }> = {};
-  
+
       cartResponse.forEach((item: CartItem) => {
         if (!groupedItems[item.inventoryId]) {
           groupedItems[item.inventoryId] = { ...item, quantity: 1 };
@@ -55,7 +54,7 @@ export default function Navbar() {
           groupedItems[item.inventoryId].quantity += 1;
         }
       });
-  
+
       setCartItems(Object.values(groupedItems));
       setCartTotal(totalResponse || 0);
     } catch (error) {
@@ -63,12 +62,16 @@ export default function Navbar() {
       message.error("Failed to load cart items");
     }
   };
-  
 
   useEffect(() => {
-    if (isAuthenticated) {
+    // if (isAuthenticated) {
+    //   fetchCartItems();
+    // }
+    const intervalId = setInterval(() => {
       fetchCartItems();
-    }
+    }, 10000);
+
+    return () => clearInterval(intervalId);
   }, [isAuthenticated]);
 
   useEffect(() => {
@@ -99,7 +102,10 @@ export default function Navbar() {
   };
 
   // Hàm giảm số lượng sản phẩm
-  const handleDecreaseQuantity = async (inventoryInvoiceDetailId: number, quantity: number) => {
+  const handleDecreaseQuantity = async (
+    inventoryInvoiceDetailId: number,
+    quantity: number
+  ) => {
     try {
       await removeCartItem(inventoryInvoiceDetailId);
       await fetchCartItems();
@@ -118,22 +124,40 @@ export default function Navbar() {
     <nav className="bg-gray-800 shadow-md w-full flex relative justify-between items-center px-7 h-20 z-50">
       {/* Left Navigation Links */}
       <div className="hidden md:block">
-        <Link href="/" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Home
         </Link>
-        <Link href="/services" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/services"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Services
         </Link>
-        <Link href="/promotions" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/promotions"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Promotions
         </Link>
-        <Link href="/inventories" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/inventories"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Inventory
         </Link>
-        <Link href="/term_policy" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/term_policy"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Term and Policy
         </Link>
-        <Link href="/report" className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white">
+        <Link
+          href="/report"
+          className="inline-block py-2 px-3 hover:bg-gray-600 rounded-full font-semibold text-white"
+        >
           Report
         </Link>
       </div>
@@ -161,45 +185,74 @@ export default function Navbar() {
                   <div className="absolute right-0 mt-2 w-96 bg-white shadow-lg rounded-lg p-5 z-50">
                     <div className="max-h-80 overflow-y-auto">
                       {cartItems.length === 0 ? (
-                        <div className="text-center text-gray-500 text-lg">Your cart is empty</div>
+                        <div className="text-center text-gray-500 text-lg">
+                          Your cart is empty
+                        </div>
                       ) : (
                         cartItems.map((item) => (
-                          <div key={item.inventoryId} className="border-b last:border-b-0 py-4 flex items-center">
+                          <div
+                            key={item.inventoryId}
+                            className="border-b last:border-b-0 py-4 flex items-center"
+                          >
                             <div className="flex-grow">
-                              <div className="font-semibold text-lg">{item.inventory?.name || "Unknown Item"}</div>
-                              <div className="text-gray-600 text-sm">{item.inventory?.description || "No description"}</div>
+                              <div className="font-semibold text-lg">
+                                {item.inventory?.name || "Unknown Item"}
+                              </div>
+                              <div className="text-gray-600 text-sm">
+                                {item.inventory?.description ||
+                                  "No description"}
+                              </div>
                               <div className="flex items-center space-x-3 mt-2">
-                                <span className="text-lg font-bold text-blue-600">Price: ${item.price}</span>
+                                <span className="text-lg font-bold text-blue-600">
+                                  Price: ${item.price}
+                                </span>
                               </div>
                             </div>
                             <div className="flex items-center">
-  <Button 
-    icon={<Minus size={16} />} 
-    type="text" 
-    onClick={() => handleDecreaseQuantity(item.inventoryInvoiceDetailId, item.quantity)}
-    disabled={item.quantity <= 1}
-  />
-  <span className="px-3">{item.quantity}</span>
-  <Button 
-    icon={<Plus size={16} />} 
-    type="text" 
-    onClick={() => handleIncreaseQuantity(item.inventoryId)}
-  />
- <Button 
-                                icon={<Trash2 size={20} />} 
-                                type="text" 
-                                danger
-                                onClick={() => handleDecreaseQuantity(item.inventoryInvoiceDetailId, 1)}
+                              <Button
+                                icon={<Minus size={16} />}
+                                type="text"
+                                onClick={() =>
+                                  handleDecreaseQuantity(
+                                    item.inventoryInvoiceDetailId,
+                                    item.quantity
+                                  )
+                                }
+                                disabled={item.quantity <= 1}
                               />
-</div>
-
+                              <span className="px-3">{item.quantity}</span>
+                              <Button
+                                icon={<Plus size={16} />}
+                                type="text"
+                                onClick={() =>
+                                  handleIncreaseQuantity(item.inventoryId)
+                                }
+                              />
+                              <Button
+                                icon={<Trash2 size={20} />}
+                                type="text"
+                                danger
+                                onClick={() =>
+                                  handleDecreaseQuantity(
+                                    item.inventoryInvoiceDetailId,
+                                    1
+                                  )
+                                }
+                              />
+                            </div>
                           </div>
                         ))
                       )}
                     </div>
                     <div className="mt-5 flex justify-between items-center">
-                      <div className="text-xl font-bold">Total: ${cartTotal.toFixed(2)}</div>
-                      <Button type="primary" onClick={() => router.push('/checkout')} disabled={cartItems.length === 0}>
+                      <div className="text-xl font-bold">
+                        Total: ${cartTotal.toFixed(2)}
+                      </div>
+                      <Button
+                        type="primary"
+                        onClick={() => router.push("/checkout")}
+                        disabled={cartItems.length === 0}
+                      >
                         Checkout
                       </Button>
                     </div>
@@ -207,8 +260,15 @@ export default function Navbar() {
                 )}
               </div>
 
-              <Link href="/profile"><User className="text-white w-6 h-6" /></Link>
-              <button onClick={handleLogout} className="text-white font-semibold">Logout</button>
+              <Link href="/profile">
+                <User className="text-white w-6 h-6" />
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="text-white font-semibold"
+              >
+                Logout
+              </button>
             </>
           ) : (
             <div className="flex space-x-4 mt-4">
