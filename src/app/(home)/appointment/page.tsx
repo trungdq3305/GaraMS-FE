@@ -499,11 +499,11 @@ export default function AppointmentPage() {
       if (response.isSuccess) {
         setShowModal(true);
       } else {
-        alert(`Failed to book appointment: Inventory of service Out of stock`);
+        alert(`Failed to book appointment: Inventory of service Out of stock / Employee shift not available`);
       }
     } catch (err: any) {
       console.error("Error booking appointment:", err);
-      alert(`Failed to book appointment: Inventory of service Out of stock`);
+      alert(`Failed to book appointment: Inventory of service Out of stock / Employee shift not available`);
     }
   };
 
