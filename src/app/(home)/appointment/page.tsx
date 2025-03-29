@@ -328,6 +328,7 @@ interface Service {
   name: string;
   totalPrice: number;
   description: string;
+  serviceInventories: { inventory: { unit: string } }[];
 }
 
 interface Employee {
@@ -411,14 +412,29 @@ export default function AppointmentPage() {
   const fetchServices = async () => {
     try {
       const response = await axiosInstance.get("service/services");
-      const services = response.data.data.map(
-        (service: any, index: number) => ({
+      // const services = response.data.data.map(
+      //   (service: any, index: number) => ({
+      //     id: service.serviceId || index + 1,
+      //     name: service.serviceName,
+      //     totalPrice: service.totalPrice,
+      //     description: service.description,
+      //   })
+      // );
+      // setServicesList(services);
+      const services = response.data.data
+        .map((service: any, index: number) => ({
           id: service.serviceId || index + 1,
           name: service.serviceName,
           totalPrice: service.totalPrice,
           description: service.description,
-        })
-      );
+          serviceInventories: service.serviceInventories || [],
+        }))
+        .filter((service: Service) => {
+          const hasZeroUnit = service.serviceInventories.some(
+            (inventory: any) => inventory.inventory.unit === "0"
+          );
+          return !hasZeroUnit;
+        });
       setServicesList(services);
     } catch (err) {
       setError("Failed to load services.");
