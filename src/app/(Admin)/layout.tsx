@@ -148,12 +148,16 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      {(user?.role === 4 || user?.role === 3) && (
+      {(user?.role === 4 || user?.role === 3 || user?.role === 2) && (
         <aside className="w-64 bg-gray-800 text-white flex flex-col shadow-md">
           {/* Header */}
           <div className="h-20 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
             <h1 className="text-2xl font-bold">
-              {user?.role === 4 ? "GaraMS Admin" : "GaraMS Manager"}
+              {user?.role === 4
+                ? "GaraMS Admin"
+                : user?.role === 3
+                ? "GaraMS Manager"
+                : "GaraMS Employee"}
             </h1>
           </div>
 
@@ -179,7 +183,7 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                     </Link>
                   </li>
                 </>
-              ) : (
+              ) : user?.role === 3 ? (
                 <>
                   <li>
                     <Link
@@ -227,6 +231,25 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                       className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                     >
                       Report
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li>
+                    <Link
+                      href="/employeeappointments"
+                      className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                    >
+                      Appointments
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/employeeshift"
+                      className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                    >
+                      Shift
                     </Link>
                   </li>
                 </>
