@@ -15,6 +15,7 @@ export const addInventory = async (serviceData: {
   description: string;
   unit: string;
   inventoryPrice: number;
+  warrantyPeriod: number;
   status: string;
 }) => {
   console.log(serviceData);
@@ -29,6 +30,7 @@ export const updateInventory = async (
     description: string;
     unit: string;
     inventoryPrice: number;
+    warrantyPeriod: number;
     status: string;
   }
 ) => {

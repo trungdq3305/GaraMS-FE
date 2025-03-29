@@ -19,6 +19,8 @@ import {
   Package,
 } from "lucide-react";
 import axiosInstance from "@/dbUtils/axios";
+import WarrantyInventoryPage from "../inventorywarranty/page";
+import WarrantyPage from "../warranty/page";
 // Define interface for Inventory Invoice
 interface InventoryInvoice {
   inventoryInvoiceId: number;
@@ -39,7 +41,7 @@ interface InventoryInvoiceDetail {
     name: string;
     description: string;
   };
-  quantity: number
+  quantity: number;
 }
 
 const Profile = () => {
@@ -56,7 +58,9 @@ const Profile = () => {
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [oldPassword, setOldPassword] = useState("");
-  const [inventoryInvoices, setInventoryInvoices] = useState<InventoryInvoice[]>([]);
+  const [inventoryInvoices, setInventoryInvoices] = useState<
+    InventoryInvoice[]
+  >([]);
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
   const [invoiceError, setInvoiceError] = useState("");
   // Profile edit states
@@ -71,8 +75,11 @@ const Profile = () => {
   const [profileUpdateError, setProfileUpdateError] = useState("");
   const processInventoryInvoices = (invoices: InventoryInvoice[]) => {
     return invoices.map((invoice) => {
-      const groupedDetails: Record<number, InventoryInvoiceDetail & { quantity: number }> = {};
-  
+      const groupedDetails: Record<
+        number,
+        InventoryInvoiceDetail & { quantity: number }
+      > = {};
+
       invoice.inventoryInvoiceDetails.forEach((detail) => {
         if (groupedDetails[detail.inventoryId]) {
           groupedDetails[detail.inventoryId].quantity += 1;
@@ -80,7 +87,7 @@ const Profile = () => {
           groupedDetails[detail.inventoryId] = { ...detail, quantity: 1 };
         }
       });
-  
+
       return {
         ...invoice,
         inventoryInvoiceDetails: Object.values(groupedDetails),
@@ -278,7 +285,7 @@ const Profile = () => {
           <Calendar size={18} />
           Appointments
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab("warrantyhistory")}
           className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
             activeTab === "warrantyhistory"
@@ -287,7 +294,29 @@ const Profile = () => {
           }`}
         >
           <Calendar size={18} />
-          Warranty History
+          Service Warranty
+        </button>
+        <button
+          onClick={() => setActiveTab("warrantyinventory")}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "warrantyinventory"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          <Calendar size={18} />
+          Inventory Warranty
+        </button> */}
+        <button
+          onClick={() => setActiveTab("warranty")}
+          className={`px-4 py-2 rounded-md flex items-center gap-2 transition-all ${
+            activeTab === "warranty"
+              ? "bg-blue-500 text-white shadow-md"
+              : "bg-gray-200 hover:bg-gray-300"
+          }`}
+        >
+          <Calendar size={18} />
+          Warranty
         </button>
         <button
           onClick={() => setActiveTab("inventoryinvoices")}
@@ -452,32 +481,40 @@ const Profile = () => {
 
       {activeTab === "vehicles" && <Vehicles />}
       {activeTab === "appointments" && <Appointments />}
-      {activeTab === "warrantyhistory" && <WarrantyHistory />}
+      {/* {activeTab === "warrantyhistory" && <WarrantyHistory />}
+      {activeTab === "warrantyinventory" && <WarrantyInventoryPage />} */}
+      {activeTab === "warranty" && <WarrantyPage />}
       {/* New Inventory Invoices Tab */}
       {activeTab === "inventoryinvoices" && (
         <div className="bg-white rounded-lg shadow-lg p-6">
           <h2 className="text-2xl font-bold mb-4">Inventory Invoices</h2>
-          
+
           {isLoadingInvoices ? (
             <div className="text-center text-gray-500">Loading invoices...</div>
           ) : invoiceError ? (
             <div className="text-red-500">{invoiceError}</div>
           ) : inventoryInvoices.length === 0 ? (
-            <div className="text-center text-gray-500">No inventory invoices found</div>
+            <div className="text-center text-gray-500">
+              No inventory invoices found
+            </div>
           ) : (
             <div className="space-y-4">
               {inventoryInvoices.map((invoice) => (
-                <div 
-                  key={invoice.inventoryInvoiceId} 
+                <div
+                  key={invoice.inventoryInvoiceId}
                   className="border rounded-lg p-4 hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex justify-between items-center mb-2">
                     <h3 className="font-semibold text-lg">
                       Invoice #{invoice.inventoryInvoiceId}
                     </h3>
-                    <span className={`px-2 py-1 rounded text-sm ${
-                      invoice.status === "False" ? "bg-green-100 text-green-800" : "bg-green-100 text-green-800"
-                    }`}>
+                    <span
+                      className={`px-2 py-1 rounded text-sm ${
+                        invoice.status === "False"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-green-100 text-green-800"
+                      }`}
+                    >
                       {invoice.status === "False" ? "Completed" : "Completed"}
                     </span>
                   </div>
@@ -492,19 +529,22 @@ const Profile = () => {
                       <strong>Payment Method:</strong> {invoice.paymentMethod}
                     </div>
                     <div>
-                      <strong>Total Amount:</strong> ${invoice.totalAmount.toFixed(2)}
+                      <strong>Total Amount:</strong> $
+                      {invoice.totalAmount.toFixed(2)}
                     </div>
                   </div>
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Items:</h4>
                     <ul className="space-y-2">
                       {invoice.inventoryInvoiceDetails.map((detail) => (
-                        <li 
-                          key={detail.inventoryInvoiceDetailId} 
+                        <li
+                          key={detail.inventoryInvoiceDetailId}
                           className="flex justify-between border-b pb-1 last:border-b-0"
                         >
                           <span>{detail.inventory.name}</span>
-                          <span className="font-semibold">${detail.price.toFixed(2)}</span>
+                          <span className="font-semibold">
+                            ${detail.price.toFixed(2)}
+                          </span>
                           <td>x {detail.quantity}</td>
                         </li>
                       ))}

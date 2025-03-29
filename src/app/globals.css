@@ -27,3 +27,7 @@ body {
 .recharts-surface {
   width: 500px !important;
 }
+
+.highlight-red {
+  color: red;
+}
