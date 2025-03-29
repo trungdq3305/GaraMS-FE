@@ -227,6 +227,14 @@ const ManagerLayout = ({ children }: { children: React.ReactNode }) => {
                   </li>
                   <li>
                     <Link
+                      href="/employeeshiftmanagement"
+                      className="block px-4 py-2 rounded-lg hover:bg-gray-700"
+                    >
+                      Employee Shift
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       href="/reportmanagement"
                       className="block px-4 py-2 rounded-lg hover:bg-gray-700"
                     >
