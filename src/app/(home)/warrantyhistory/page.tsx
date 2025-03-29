@@ -188,7 +188,7 @@ const WarrantyHistoryPage = () => {
 
                 <div className="flex items-start">
                   <FileTextOutlined className="mr-2 mt-1" />
-                  <Text strong>Note:</Text>
+                  <Text strong>Appointment Id:</Text>
                   <Text className="ml-2">{warranty.note}</Text>
                 </div>
 
