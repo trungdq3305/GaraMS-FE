@@ -435,7 +435,6 @@ const ServiceManagementPage = () => {
                         <div><Text strong>Name:</Text> {item.inventory.name}</div>
                         <div><Text strong>Description:</Text> {item.inventory.description}</div>
                         <div><Text strong>Price:</Text> ${item.inventory.price}</div>
-                        <div><Text strong>Unit:</Text> {item.inventory.unit}</div>
                       </div>
                     </List.Item>
                   )}

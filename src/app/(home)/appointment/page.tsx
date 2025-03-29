@@ -459,11 +459,11 @@ export default function AppointmentPage() {
       if (response.isSuccess) {
         setShowModal(true);
       } else {
-        alert(`Failed to book appointment: ${response.message}`);
+        alert(`Failed to book appointment: Inventory of service Out of stock`);
       }
     } catch (err: any) {
       console.error("Error booking appointment:", err);
-      alert(`Failed to book appointment: ${err.message || "Unknown error"}`);
+      alert(`Failed to book appointment: Inventory of service Out of stock`);
     }
   };
 
