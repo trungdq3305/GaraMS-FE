@@ -521,6 +521,25 @@ export default function AppointmentPage() {
     });
   };
 
+  const disabledHours = () => {
+    const hours = [];
+    for (let i = 0; i < 24; i++) {
+      if (i < 6 || i > 17) {
+        hours.push(i);
+      }
+    }
+    return hours;
+  };
+
+  const disabledMinutes = (selectedHour: number) => {
+    if (selectedHour === 6 || selectedHour === 17) {
+      return Array.from({ length: 60 }, (_, i) => i).filter(
+        (minute) => minute !== 0
+      );
+    }
+    return [];
+  };
+
   const totalPrice = formData.services.reduce(
     (sum, service) => sum + service.totalPrice,
     0
@@ -557,6 +576,8 @@ export default function AppointmentPage() {
                 })
               }
               value={formData.date ? dayjs(formData.date) : null}
+              disabledHours={disabledHours}
+              disabledMinutes={disabledMinutes}
             />
           </div>
 
