@@ -83,7 +83,7 @@ export default function LoginPage() {
     if (userRole === RoleCode.ADMIN) {
       router.push("/dashboard");
     } else if (userRole === RoleCode.EMPLOYEE) {
-      router.push("/appointments");
+      router.push("/employeeappointments");
     } else if (userRole === RoleCode.MANAGER) {
       router.push("/appointments");
     } else {

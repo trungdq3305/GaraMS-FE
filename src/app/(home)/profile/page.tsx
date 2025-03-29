@@ -495,6 +495,11 @@ const Profile = () => {
                       <strong>Total Amount:</strong> ${invoice.totalAmount.toFixed(2)}
                     </div>
                   </div>
+                  {invoice.diliverType === "Shipping" && (
+  <div className="mt-2 flex items-center text-blue-600">
+    🚚 Inventory will diliver to you in 3-5 days
+  </div>
+)}
                   <div className="mt-4">
                     <h4 className="font-medium mb-2">Items:</h4>
                     <ul className="space-y-2">

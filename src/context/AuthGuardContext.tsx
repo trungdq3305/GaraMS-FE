@@ -30,7 +30,7 @@ const roleRedirects: Record<UserRole, string> = {
 
 const restrictedPages: Record<UserRole, string[]> = {
   4: ["/dashboard", "/usermanagement", "/profiles/[userId]"],
-  2: ["/appointments"],
+  2: ["/employeeappointments", "/employeeshift"],
   1: [
     "/",
     "/appointment",
